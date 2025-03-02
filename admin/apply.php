@@ -7,26 +7,40 @@ if (!isset($_GET['id'])) {
 
 $job_id = intval($_GET['id']);
 $successMessage = "";
+$errorMessage = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = mysqli_real_escape_string($conn, $_POST['name']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $address = mysqli_real_escape_string($conn, $_POST['address']);
+    $cover_letter = mysqli_real_escape_string($conn, $_POST['cover_letter']);
 
-    if ($_FILES['resume']['error'] === UPLOAD_ERR_OK) {
+    if (isset($_FILES['resume']) && $_FILES['resume']['error'] === UPLOAD_ERR_OK) {
         $resume_name = basename($_FILES['resume']['name']);
         $resume_tmp = $_FILES['resume']['tmp_name'];
         $resume_path = "uploads/" . $resume_name;
-        
+
+        // Ensure the uploads directory exists
+        if (!is_dir("uploads")) {
+            mkdir("uploads", 0777, true);
+        }
+
         if (move_uploaded_file($resume_tmp, $resume_path)) {
-            $sql = "INSERT INTO job_applications (job_id, name, email, resume) VALUES ('$job_id', '$name', '$email', '$resume_name')";
+            // Insert into database
+            $sql = "INSERT INTO applications (job_id, applicant_name, email, phone, address, cover_letter, resume, status) 
+                    VALUES ('$job_id', '$name', '$email', '$phone', '$address', '$cover_letter', '$resume_name', 'Pending')";
+
             if (mysqli_query($conn, $sql)) {
                 $successMessage = "Application submitted successfully!";
             } else {
-                $successMessage = "Error: " . mysqli_error($conn);
+                $errorMessage = "Database Error: " . mysqli_error($conn);
             }
         } else {
-            $successMessage = "Error uploading file.";
+            $errorMessage = "Error uploading file.";
         }
+    } else {
+        $errorMessage = "Please upload a valid resume.";
     }
 }
 ?>
@@ -46,6 +60,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <?php if ($successMessage): ?>
         <div class="alert alert-success"><?php echo $successMessage; ?></div>
+    <?php elseif ($errorMessage): ?>
+        <div class="alert alert-danger"><?php echo $errorMessage; ?></div>
     <?php endif; ?>
 
     <div class="card p-4">
@@ -58,6 +74,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="mb-3">
                 <label>Email</label>
                 <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Phone</label>
+                <input type="text" name="phone" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Address</label>
+                <textarea name="address" class="form-control" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label>Cover Letter</label>
+                <textarea name="cover_letter" class="form-control" required></textarea>
             </div>
 
             <div class="mb-3">

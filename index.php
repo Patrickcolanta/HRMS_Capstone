@@ -74,7 +74,7 @@ session_destroy();
                                     <div class="row m-t-25 text-left">
                                         <div class="col-12">
                                             <div class="forgot-phone text-right f-right">
-                                                <a href="auth-reset-password.htm" class="text-right f-w-600"> Forgot Password?</a>
+                                                <a href="forgot_password.php" class="text-right f-w-600"> Forgot Password?</a>
                                             </div>
                                         </div>
                                     </div>

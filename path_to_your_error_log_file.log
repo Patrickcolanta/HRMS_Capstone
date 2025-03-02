@@ -11,3 +11,24 @@ Stack trace:
 #2 {main}
   thrown in C:\xampp\htdocs\leave_portal\login.php on line 21
 [05-Aug-2024 23:12:00 Europe/Berlin] Exception: Unknown column 'email_id' in 'where clause'
+[27-Feb-2025 15:28:54 Europe/Berlin] Checking login for: colantapatrick0@gmail.com
+[27-Feb-2025 15:28:54 Europe/Berlin] Entered password: Password@1
+[27-Feb-2025 15:28:54 Europe/Berlin] Stored Hash: $2y$10$LM5s2.KoH3evsPhKiUWbzO07Mg21OCI5ItEJ6aFcP5OMmGPX0ZBYW
+[27-Feb-2025 15:28:54 Europe/Berlin] Password verification failed!
+[28-Feb-2025 04:18:18 Europe/Berlin] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 34
+[28-Feb-2025 04:27:47 Europe/Berlin] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 34
+[01-Mar-2025 06:40:08 Europe/Berlin] PHP Warning:  mail(): Failed to connect to mailserver at &quot;localhost&quot; port 25, verify your &quot;SMTP&quot; and &quot;smtp_port&quot; setting in php.ini or use ini_set() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 54
+[01-Mar-2025 06:49:31 Europe/Berlin] PHP Warning:  mail(): Failed to connect to mailserver at &quot;localhost&quot; port 25, verify your &quot;SMTP&quot; and &quot;smtp_port&quot; setting in php.ini or use ini_set() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 57
+[01-Mar-2025 06:49:44 Europe/Berlin] PHP Warning:  mail(): Failed to connect to mailserver at &quot;localhost&quot; port 25, verify your &quot;SMTP&quot; and &quot;smtp_port&quot; setting in php.ini or use ini_set() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 57
+[01-Mar-2025 06:52:04 Europe/Berlin] PHP Warning:  mail(): Failed to connect to mailserver at &quot;localhost&quot; port 25, verify your &quot;SMTP&quot; and &quot;smtp_port&quot; setting in php.ini or use ini_set() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 57
+[01-Mar-2025 06:55:49 Europe/Berlin] PHP Warning:  mail(): Failed to connect to mailserver at &quot;localhost&quot; port 25, verify your &quot;SMTP&quot; and &quot;smtp_port&quot; setting in php.ini or use ini_set() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 57
+[01-Mar-2025 06:56:47 Europe/Berlin] PHP Warning:  mail(): Failed to connect to mailserver at &quot;localhost&quot; port 25, verify your &quot;SMTP&quot; and &quot;smtp_port&quot; setting in php.ini or use ini_set() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 57
+[01-Mar-2025 07:05:00 Europe/Berlin] PHP Warning:  Undefined variable $email in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 52
+[01-Mar-2025 07:05:00 Europe/Berlin] PHP Warning:  Undefined variable $otp in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 52
+[01-Mar-2025 07:05:01 Europe/Berlin] PHP Fatal error:  Uncaught Error: Undefined constant "EMAIL" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:30
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(52): sendOTP(NULL, NULL)
+#1 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 30
+[01-Mar-2025 09:34:33 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 29
+[01-Mar-2025 09:34:36 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 29

@@ -68,7 +68,7 @@ function sendLeaveApplicationEmail($supervisorEmail, $name, $from, $to, $type, $
     if (!$mail) {
         return false;
     }
-    $redirectLink = "http://localhost/leave_portal/index.php";
+    $redirectLink = "http://localhost/dashboard/CAPSTONE/HRMS/index.php";
     $subject = "$type Leave Application";
     $body = "
         <p>Hello $supervisorName,</p>

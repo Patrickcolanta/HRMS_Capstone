@@ -218,15 +218,15 @@
         <div class="pcoded-navigatio-lavel">Support</div>
         <ul class="pcoded-item pcoded-left-item">
             <li class="">
-                <a href="https://codelytical.netlify.app/" target="_blank">
+                <a href="https://www.facebook.com/johnpatrickColanta/" target="_blank">
                     <span class="pcoded-micon"><i class="feather icon-monitor"></i></span>
-                    <span class="pcoded-mtext">Portfolio</span>
+                    <span class="pcoded-mtext">Facebook</span>
                 </a>
             </li>
             <li class="">
-                <a href="https://www.youtube.com/@codelytical" target="_blank">
+                <a href="https://www.instagram.com/patrickcolanta/" target="_blank">
                     <span class="pcoded-micon"><i class="feather icon-monitor"></i></span>
-                    <span class="pcoded-mtext">CodeLytical</span>
+                    <span class="pcoded-mtext">Instagram</span>
                 </a>
             </li>
         </ul>

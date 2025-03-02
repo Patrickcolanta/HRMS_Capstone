@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Leave Management System </title>
+    <title>HRMS </title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -107,11 +107,16 @@
     
     <script type="text/javascript">
     $('#reset-password').click(function(event){
-        event.preventDefault(); // prevent the default form submission
-        var newPassword = $('#new_password').val();
-        var confirmPassword = $('#confirm_password').val();
+        event.preventDefault(); // Prevent the default form submission
+        
+        var newPassword = $('#new_password').val().trim();
+        var confirmPassword = $('#confirm_password').val().trim();
 
-        if (newPassword.trim() === '' || confirmPassword.trim() === '') {
+        // ✅ Strong Password Regex Pattern
+        var passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        // ✅ Check if fields are empty
+        if (newPassword === '' || confirmPassword === '') {
             Swal.fire({
                 icon: 'warning',
                 text: 'Please fill in all fields',
@@ -121,16 +126,38 @@
             return;
         }
 
+        // ✅ Check if passwords match
         if (newPassword !== confirmPassword) {
             Swal.fire({
-                icon: 'warning',
+                icon: 'error',
                 text: 'Passwords do not match',
+                confirmButtonColor: '#eb3422',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // ✅ Check if password meets strong criteria
+        if (!passwordPattern.test(newPassword)) {
+            Swal.fire({
+                icon: 'warning',
+                html: `
+                    Password must meet the following requirements:<br>
+                    <ul style="text-align: left; margin-top: 10px;">
+                        <li>At least <strong>8 characters</strong></li>
+                        <li>At least <strong>one uppercase letter</strong> (A-Z)</li>
+                        <li>At least <strong>one lowercase letter</strong> (a-z)</li>
+                        <li>At least <strong>one number</strong> (0-9)</li>
+                        <li>At least <strong>one special character</strong> (@$!%*?&)</li>
+                    </ul>
+                `,
                 confirmButtonColor: '#ffc107',
                 confirmButtonText: 'OK'
             });
             return;
         }
 
+        // ✅ If validation passes, proceed with AJAX request
         var data = {
             new_password: newPassword,
             confirm_password: confirmPassword,
@@ -184,6 +211,7 @@
         });
     });
 </script>
+
 
 </body>
 

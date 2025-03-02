@@ -89,44 +89,53 @@ $result = mysqli_query($conn, $sql);
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                <?php
-                                                                if ($result && mysqli_num_rows($result) > 0) {
-                                                                    $count = 1;
-                                                                    while ($row = mysqli_fetch_assoc($result)) {
-                                                                        $applicant_name = htmlspecialchars($row['applicant_name']);
-                                                                        $email = htmlspecialchars($row['email']);
-                                                                        $phone = htmlspecialchars($row['phone']);
-                                                                        $address = htmlspecialchars($row['address']);
-                                                                        $cover_letter = htmlspecialchars($row['cover_letter']);
-                                                                        $job_title = htmlspecialchars($row['job_title']);
-                                                                        $status = htmlspecialchars($row['status']);
-                                                                        $applied_at = htmlspecialchars($row['applied_at']);
-                                                                        $resumeFile = 'resumes/' . htmlspecialchars($row['resume']);
-                                                                        $resumeLink = file_exists($resumeFile) ? "<a href='$resumeFile' target='_blank' class='btn btn-info btn-sm'>View Resume</a>" : "<span class='text-danger'>File not found</span>";
+    <?php
+    if ($result && mysqli_num_rows($result) > 0) {
+        $count = 1;
+        while ($row = mysqli_fetch_assoc($result)) {
+            $applicant_name = htmlspecialchars($row['applicant_name']);
+            $email = htmlspecialchars($row['email']);
+            $phone = htmlspecialchars($row['phone']);
+            $address = htmlspecialchars($row['address']);
+            $cover_letter = htmlspecialchars($row['cover_letter']);
+            $job_title = htmlspecialchars($row['job_title']);
+            $status = htmlspecialchars($row['status']);
+            $applied_at = htmlspecialchars($row['applied_at']);
 
-                                                                        echo "<tr>
-                                                                            <td>{$count}</td>
-                                                                            <td>{$applicant_name}</td>
-                                                                            <td>{$email}</td>
-                                                                            <td>{$phone}</td>
-                                                                            <td>{$address}</td>
-                                                                            <td>{$job_title}</td>
-                                                                            <td>{$cover_letter}</td>
-                                                                            <td>{$resumeLink}</td>
-                                                                            <td id='status-{$row['id']}'>{$status}</td>
-                                                                            <td>{$applied_at}</td>
-                                                                            <td>
-                                                                                <a href='approve_application.php?id={$row['id']}' class='btn btn-success btn-sm'>Approve</a>
-                                                                                <button class='btn btn-danger btn-sm reject-btn' data-id='{$row['id']}'>Reject</button>
-                                                                            </td>
-                                                                        </tr>";
-                                                                        $count++;
-                                                                    }
-                                                                } else {
-                                                                    echo "<tr><td colspan='11' class='text-center'>No applications found</td></tr>";
-                                                                }
-                                                                ?>
-                                                            </tbody>
+            // Corrected directory
+            $resumeFile = 'uploads/' . htmlspecialchars($row['resume']);
+
+            // Button to open the resume
+            if (!empty($row['resume']) && file_exists($resumeFile)) {
+                $resumeLink = "<button onclick=\"window.open('$resumeFile', '_blank')\" class='btn btn-info btn-sm'>View Resume</button>";
+            } else {
+                $resumeLink = "<span class='text-danger'>File not found</span>";
+            }
+
+            echo "<tr id='row-{$row['id']}'>
+                <td>{$count}</td>
+                <td>{$applicant_name}</td>
+                <td>{$email}</td>
+                <td>{$phone}</td>
+                <td>{$address}</td>
+                <td>{$job_title}</td>
+                <td>{$cover_letter}</td>
+                <td>{$resumeLink}</td>
+                <td id='status-{$row['id']}'>{$status}</td>
+                <td>{$applied_at}</td>
+                <td>
+                    <a href='approve_application.php?id={$row['id']}' class='btn btn-success btn-sm approve-btn' data-id='{$row['id']}'>Approve</a>
+                    <button class='btn btn-danger btn-sm reject-btn' data-id='{$row['id']}'>Reject</button>
+                </td>
+            </tr>";
+            $count++;
+        }
+    } else {
+        echo "<tr><td colspan='11' class='text-center'>No applications found</td></tr>";
+    }
+    ?>
+</tbody>
+
                                                         </table>
                                                     </div>
                                                 </div>
@@ -165,14 +174,41 @@ document.addEventListener("DOMContentLoaded", function() {
             }).then(result => {
                 if (result.value && result.value.status === 'success') {
                     Swal.fire("Success", result.value.message, "success");
-                    document.getElementById(`status-${applicationId}`).innerText = "Rejected";
+                    
+                    // Remove the row from the table
+                    document.getElementById(`row-${applicationId}`).remove();
                 } else {
                     Swal.fire("Error", result.value.message, "error");
                 }
             });
         });
     });
+
+    // Approve button handling
+    document.querySelectorAll(".approve-btn").forEach(button => {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+            let applicationId = this.getAttribute("data-id");
+
+            fetch(`approve_application.php?id=${applicationId}`, {
+                method: "GET",
+            })
+            .then(response => response.text())
+            .then(result => {
+                if (result.includes("success")) {
+                    Swal.fire("Success", "Application approved successfully!", "success");
+                    
+                    // Remove the row from the table
+                    document.getElementById(`row-${applicationId}`).remove();
+                } else {
+                    Swal.fire("Error", "Failed to approve application.", "error");
+                }
+            });
+        });
+    });
 });
 </script>
+
+
 </body>
 </html>
