@@ -208,7 +208,6 @@ if ($userRole !== 'Manager' && $userRole !== 'Admin') {
                                                                         <input type="email" id="email" name="email" autocomplete="off" class="form-control" placeholder="" value="<?php echo isset($row['email_id']) ? $row['email_id'] : ''; ?>">
                                                                     </div>
                                                                 </div>
-
                                                                 <?php if(!isset($row) || empty($row)): ?>
                                                                     <div class="form-group row">
                                                                         <div class="col-sm-12">
@@ -216,6 +215,9 @@ if ($userRole !== 'Manager' && $userRole !== 'Admin') {
                                                                         </div>
                                                                         <div class="col-sm-12">
                                                                             <input type="password" placeholder="**********" id="password" name="password" autocomplete="off" class="form-control">
+                                                                            <?php if(isset($row) && !empty($row)): ?>
+                                                                                <label for="userName" class="block" style="font-style: italic; font-size: 12px;">Leave this blank if you don't want to change password</label>
+                                                                            <?php endif; ?>
                                                                         </div>
                                                                     </div>
                                                                     <div class="form-group row">
@@ -226,27 +228,7 @@ if ($userRole !== 'Manager' && $userRole !== 'Admin') {
                                                                             <input type="password" placeholder="**********" id="c_password" name="c_password" autocomplete="off" class="form-control">
                                                                         </div>
                                                                     </div>
-                                                                <?php else: ?>
-                                                                    <div class="form-group row">
-                                                                        <div class="col-sm-12">
-                                                                            <label for="userName-2" class="block">Password</label>
-                                                                        </div>
-                                                                        <div class="col-sm-12">
-                                                                            <input type="password" placeholder="**********" id="password" name="password" autocomplete="off" class="form-control">
-                                                                            <label for="userName" class="block" style="font-style: italic; font-size: 12px;">Leave this blank if you don't want to change password</label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="form-group row">
-                                                                        <div class="col-sm-12">
-                                                                            <label for="userName-2" class="block">Confirm Password</label>
-                                                                        </div>
-                                                                        <div class="col-sm-12">
-                                                                            <input type="password" placeholder="**********" id="c_password" name="c_password" autocomplete="off" class="form-control">
-                                                                        </div>
-                                                                    </div>
-                                                                <?php endif; ?>
-                                                                
-                                                                
+                                                                <?php endif; ?>               
                                                                 <h4 class="sub-title">Is Supervisor? *</h4>
                                                                 <div class="form-group row">
                                                                     <div class="col-sm-12">
@@ -434,15 +416,13 @@ if ($userRole !== 'Manager' && $userRole !== 'Admin') {
                 formData.append('image_path', imageFile);
                 formData.append('action', 'updateStaff');
 
-                console.log('Data HERE: ' + Array.from(formData.entries()).reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}));
+                console.log('Data HERE: ' + JSON.stringify(formData));
                 
                 console.log('Data to be sent:', formData);
                 $.ajax({
                     url: 'staff_functions.php',
                     type: 'post',
                     data: formData,
-                    contentType: false,
-                    processData: false,
                     contentType: false,
                     processData: false,
                     success:function(response){
@@ -481,172 +461,200 @@ if ($userRole !== 'Manager' && $userRole !== 'Admin') {
         })
       });
     </script>
-<script>
-    $('#staff-add').click(function(event){
-        event.preventDefault(); // prevent the default form submission
-        (async () => {
-            // Validate required fields
-            var requiredFields = ['firstname', 'lastname', 'contact', 'designation', 'department', 'email', 'staff_id'];
-            var formData = new FormData();
-            var isValid = true;
+    <script>
+        $('#staff-add').click(function(event){
+            event.preventDefault(); // prevent the default form submission
+            (async () => {
+                // Validate required fields
+                var requiredFields = ['firstname', 'lastname', 'contact', 'designation', 'department', 'email', 'staff_id'];
+                var formData = new FormData();
+                var isValid = true;
 
-            for (var i = 0; i < requiredFields.length; i++) {
-                var field = requiredFields[i];
-                var value = $('#' + field).val();
-                
-                // Check if the field is empty
-                if (value.trim() === '') {
+                for (var i = 0; i < requiredFields.length; i++) {
+                    var field = requiredFields[i];
+                    var value = $('#' + field).val();
+                    
+                    // Check if the field is empty
+                    if (value.trim() === '') {
+                        Swal.fire({
+                            icon: 'warning',
+                            text: 'Please fill in all required fields',
+                            confirmButtonColor: '#ffc107',
+                            confirmButtonText: 'OK'
+                        });
+                        isValid = false;
+                        break; // Stop further validation
+                    }
+
+                    // Append the field to the form data
+                    formData.append(field, value);
+                }
+
+                if (!isValid) {
+                    return; // Don't proceed if there are empty fields
+                }
+
+                // Check if password is empty
+                var password = $('#password').val();
+                var cPassword = $('#c_password').val();
+                if (password === '') {
                     Swal.fire({
                         icon: 'warning',
-                        text: 'Please fill in all required fields',
+                        text: 'Password cannot be empty',
                         confirmButtonColor: '#ffc107',
                         confirmButtonText: 'OK'
                     });
-                    isValid = false;
-                    break; // Stop further validation
+                    return;
                 }
 
-                // Append the field to the form data
-                formData.append(field, value);
-            }
+                // Check if password and c_password match
+                if (password !== cPassword) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Passwords do not match',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
 
-            if (!isValid) {
-                return; // Don't proceed if there are empty fields
-            }
+                // Append the password to the form data
+                formData.append('password', password);
 
-            // Check if password is empty
-            var password = $('#password').val();
-            var cPassword = $('#c_password').val();
-            if (password === '') {
-                Swal.fire({
-                    icon: 'warning',
-                    text: 'Password cannot be empty',
-                    confirmButtonColor: '#ffc107',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
+                // Validate gender
+                var selectedGender = $('input[name="gender"]:checked').val();
+                if (!selectedGender) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Please select a gender',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+                formData.append('gender', selectedGender);
 
-            // Check if password and c_password match
-            if (password !== cPassword) {
-                Swal.fire({
-                    icon: 'warning',
-                    text: 'Passwords do not match',
-                    confirmButtonColor: '#ffc107',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
+                // Validate supervisor
+                var selectedIsSupervisor = $('input[name="is_supervisor"]:checked').val();
+                if (!selectedIsSupervisor) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Please check whether is supervisor or not',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+                formData.append('is_supervisor', selectedIsSupervisor);
 
-            // Append the password to the form data
-            formData.append('password', password);
+                // Validate role
+                var selectedRole = $('input[name="role"]:checked').val();
+                if (!selectedRole) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Please select a role',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+                formData.append('role', selectedRole);
 
-            // Validate gender
-            var selectedGender = $('input[name="gender"]:checked').val();
-            if (!selectedGender) {
-                Swal.fire({
-                    icon: 'warning',
-                    text: 'Please select a gender',
-                    confirmButtonColor: '#ffc107',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
-            formData.append('gender', selectedGender);
+                var imageFile = $('#image_path')[0].files[0];
 
-            // Validate supervisor
-            var selectedIsSupervisor = $('input[name="is_supervisor"]:checked').val();
-            if (!selectedIsSupervisor) {
-                Swal.fire({
-                    icon: 'warning',
-                    text: 'Please check whether is supervisor or not',
-                    confirmButtonColor: '#ffc107',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
-            formData.append('is_supervisor', selectedIsSupervisor);
+                // Handle the image field separately
+                if (!imageFile) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Please select an image file',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
 
-            // Validate role
-            var selectedRole = $('input[name="role"]:checked').val();
-            if (!selectedRole) {
-                Swal.fire({
-                    icon: 'warning',
-                    text: 'Please select a role',
-                    confirmButtonColor: '#ffc107',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
-            formData.append('role', selectedRole);
+                // Validate image type
+                var allowedTypes = ['image/jpeg', 'image/png'];
+                if (!allowedTypes.includes(imageFile.type)) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Invalid image type. Only JPEG and PNG are allowed.',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
 
-            // Handle the image field separately
-            var imageFile = $('#image_path')[0].files[0];
-            if (!imageFile) {
-                Swal.fire({
-                    icon: 'warning',
-                    text: 'Please select an image file',
-                    confirmButtonColor: '#ffc107',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
+                // Validate image size (max 5MB)
+                if (imageFile.size > 5 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Image size exceeds 5MB.',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
 
-            formData.append('middlename', $('#middlename').val());
-            formData.append('image_path', imageFile);
-            formData.append('action', 'staff-add');                                                                     
+                formData.append('middlename', $('#middlename').val());
+                formData.append('image_path', imageFile);
+                formData.append('action', 'staff-add');                                                                     
 
-            console.log('Data HERE: ' + JSON.stringify(formData));
-            $.ajax({
-                url: 'staff_functions.php',
-                type: 'post',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success:function(response){
-                    console.log('Raw Response:', response);
-                    try {
-                        response = JSON.parse(response);
-                        console.log('RESPONSE HERE: ' + response.status)
-                        console.log(`RESPONSE HERE: ${response.message}`);
-                        if (response.status == 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                html: response.message,
-                                confirmButtonColor: '#01a9ac',
-                                confirmButtonText: 'OK'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    location.reload();
-                                }
-                            });
-                        } else {
+                console.log('Data HERE: ' + JSON.stringify(formData));
+                $.ajax({
+                    url: 'staff_functions.php',
+                    type: 'post',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success:function(response){
+                        try {
+                            if (typeof response === 'string') {
+                                response = JSON.parse(response);
+                            }
+                            if (response.status == 'success') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    html: response.message,
+                                    confirmButtonColor: '#01a9ac',
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        location.reload();
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    text: response.message,
+                                    confirmButtonColor: '#eb3422',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        } catch (e) {
+                            console.error("Invalid JSON response:", response);
                             Swal.fire({
                                 icon: 'error',
-                                text: response.message,
-                                confirmButtonColor: '#eb3422',
+                                text: 'Unexpected server error. Please try again later.',
+                                confirmButtonColor: '#e74c3c',
                                 confirmButtonText: 'OK'
                             });
-                        }
-                    } catch (e) {
-                        console.error('Error parsing JSON:', e);
+                    }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
                         Swal.fire({
                             icon: 'error',
-                            text: 'An error occurred while processing your request.',
+                            text: 'Failed to connect to the server.',
                             confirmButtonColor: '#eb3422',
-                            confirmButtonText: 'OK'
                         });
+                        console.log('AJAX Data HERE: ' + JSON.stringify(formData));
+                        console.log("Response from server: " + jqXHR.responseText);
+                        console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
                     }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.log('AJAX Data HERE: ' + JSON.stringify(formData));
-                    console.log("Response from server: " + jqXHR.responseText);
-                    console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
-                }
-            });
-        })()
-    })
-</script>
+                });
+            })()
+        })
+    </script>
 
     <script>
         $(document).ready(function() {

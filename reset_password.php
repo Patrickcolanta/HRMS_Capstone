@@ -24,7 +24,7 @@
 </head>
 
 <?php include('includes/config.php'); ?>
-<?php include('includes/session.php');?>
+
 
 <body class="fix-menu">
     <!-- Pre-loader start -->
@@ -59,7 +59,7 @@
                                     </div>
                                 </div>
                                 
-                                <p class="text-inverse text-right">Back to <a href="index.php">Login</a></p>
+                                <p class="text-inverse text-right"> <a href="index.php"> Back to Login</a></p>
                                 
                             </div>
                         </div>
@@ -106,16 +106,30 @@
     </script>
     
     <script type="text/javascript">
-    $('#reset-password').click(function(event){
-        event.preventDefault(); // Prevent the default form submission
+$(document).ready(function() {
+    $('#reset-password').click(function(event) {
+        event.preventDefault(); // Prevent form submission
         
         var newPassword = $('#new_password').val().trim();
         var confirmPassword = $('#confirm_password').val().trim();
+        
+        // ✅ Extract Token from URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var token = urlParams.get('token'); // Fetches 'token' from URL
 
-        // ✅ Strong Password Regex Pattern
+        if (!token) {
+            Swal.fire({
+                icon: 'error',
+                text: 'Invalid or missing token',
+                confirmButtonColor: '#eb3422',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // ✅ Strong Password Validation
         var passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-        // ✅ Check if fields are empty
         if (newPassword === '' || confirmPassword === '') {
             Swal.fire({
                 icon: 'warning',
@@ -126,7 +140,6 @@
             return;
         }
 
-        // ✅ Check if passwords match
         if (newPassword !== confirmPassword) {
             Swal.fire({
                 icon: 'error',
@@ -137,7 +150,6 @@
             return;
         }
 
-        // ✅ Check if password meets strong criteria
         if (!passwordPattern.test(newPassword)) {
             Swal.fire({
                 icon: 'warning',
@@ -157,22 +169,21 @@
             return;
         }
 
-        // ✅ If validation passes, proceed with AJAX request
-        var data = {
-            new_password: newPassword,
-            confirm_password: confirmPassword,
-            action: "reset_password"
-        };
-
+        // ✅ Send AJAX Request with Token in POST data
         $.ajax({
-            url: 'reset_pass_function.php',
-            type: 'post',
-            data: data,
+            url: 'reset_pass_function.php', // ❌ Removed token from URL
+            type: 'POST',
+            data: {
+                token: token, // ✅ Token sent via POST
+                new_password: newPassword,
+                confirm_password: confirmPassword,
+                action: "reset_password"
+            },
             dataType: 'json',
-            success: function(response){
+            success: function(response) {
                 console.log(response.message);
-                console.log("response user_type: " + response.role);
-                if (response.status == 'success') {
+
+                if (response.status === 'success') {
                     Swal.fire({
                         icon: 'success',
                         title: response.message,
@@ -180,20 +191,7 @@
                         confirmButtonText: 'OK'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            if (response.role == 'Admin') {
-                                window.location = 'admin/index.php';
-                            } else if (response.role == 'Manager') {
-                                window.location = 'admin/index.php';
-                            } else if (response.role == 'Staff') {
-                                window.location = 'staff/index.php';
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    text: 'Invalid user type or error',
-                                    confirmButtonColor: '#eb3422',
-                                    confirmButtonText: 'OK'
-                                });
-                            }
+                            window.location = 'index.php'; // Redirect to login page
                         }
                     });
                 } else {
@@ -210,6 +208,7 @@
             }
         });
     });
+});
 </script>
 
 

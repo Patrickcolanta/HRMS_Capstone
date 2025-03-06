@@ -52,3 +52,96 @@
 [01-Mar-2025 06:59:17 Europe/Berlin] PHP Warning:  mail(): Failed to connect to mailserver at &quot;localhost&quot; port 25, verify your &quot;SMTP&quot; and &quot;smtp_port&quot; setting in php.ini or use ini_set() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 61
 [01-Mar-2025 06:59:17 Europe/Berlin] OTP Email Sent: No | OTP: 094369
 [01-Mar-2025 06:59:17 Europe/Berlin] Login Response: {"status":"otp_required","message":"OTP sent to your email. Please verify.","otp_required":true,"email":"colantapatrick0@gmail.com"}
+[02-Mar-2025 13:19:29 Europe/Berlin] PHPMailer Error: SMTP Error: Could not connect to SMTP host. Connection failed. stream_socket_enable_crypto(): SSL: An existing connection was forcibly closed by the remote hostSMTP server error: QUIT command failed
+[02-Mar-2025 14:04:01 Europe/Berlin] PHPMailer Error: SMTP Error: data not accepted.SMTP server error: DATA END command failed
+[02-Mar-2025 14:05:38 Europe/Berlin] PHPMailer Error: SMTP Error: Could not connect to SMTP host. STARTTLS command failedSMTP server error: Called QUIT without being connected
+[04-Mar-2025 00:49:49 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 123
+[04-Mar-2025 00:49:49 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 126
+[04-Mar-2025 00:49:49 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 129
+[04-Mar-2025 00:56:31 Europe/Berlin] PHP Warning:  Undefined array key "FirstName" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 91
+[04-Mar-2025 00:56:35 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 127
+[04-Mar-2025 00:56:35 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 130
+[04-Mar-2025 00:56:35 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 133
+[04-Mar-2025 00:56:37 Europe/Berlin] PHP Warning:  Undefined array key "FirstName" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 91
+[04-Mar-2025 00:56:42 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 127
+[04-Mar-2025 00:56:42 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 130
+[04-Mar-2025 00:56:42 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 133
+[04-Mar-2025 01:01:07 Europe/Berlin] PHP Warning:  Undefined array key "FirstName" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 91
+[04-Mar-2025 01:01:15 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 127
+[04-Mar-2025 01:01:15 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 130
+[04-Mar-2025 01:01:15 Europe/Berlin] PHP Warning:  Undefined variable $role in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 133
+[04-Mar-2025 01:11:34 Europe/Berlin] PHP Warning:  Undefined array key "FirstName" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 91
+[04-Mar-2025 01:11:58 Europe/Berlin] PHP Warning:  Undefined array key "FirstName" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 91
+[04-Mar-2025 02:34:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function logAction() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:136
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(178): login('lorenzmanabat04...', '44ffe44097bbce0...')
+#1 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 136
+[04-Mar-2025 02:34:24 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function logAction() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:136
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(178): login('colantapatrick0...', 'f9721ff4ea11386...')
+#1 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 136
+[04-Mar-2025 03:22:39 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function logLogin() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:100
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(163): login('lorenzmanabat04...', '44ffe44097bbce0...')
+#1 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 100
+[04-Mar-2025 03:27:16 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function logLogin() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:100
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(163): login('lorenzmanabat04...', '44ffe44097bbce0...')
+#1 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 100
+[04-Mar-2025 03:33:51 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function logAction() in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:101
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(159): login('lorenzmanabat04...', '44ffe44097bbce0...')
+#1 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 101
+[04-Mar-2025 05:01:05 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:02:05 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:02:06 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:02:17 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:02:55 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:05:06 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:05:07 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:05:08 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:05:08 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:05:09 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:05:09 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:06:20 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:08:48 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:09:11 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 116
+[04-Mar-2025 05:39:24 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 124
+[04-Mar-2025 05:39:24 Europe/Berlin] reCAPTCHA verification failed: {"success":false,"error-codes":["invalid-input-response"]}
+[04-Mar-2025 05:39:32 Europe/Berlin] PHP Warning:  Undefined array key "g-recaptcha-response" in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 124
+[04-Mar-2025 05:39:32 Europe/Berlin] reCAPTCHA verification failed: {"success":false,"error-codes":["invalid-input-response"]}
+[04-Mar-2025 05:50:05 Europe/Berlin] PHP Warning:  Undefined variable $emp_id in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 123
+[04-Mar-2025 05:50:05 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'email' in 'field list' in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:29
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(29): mysqli->prepare('INSERT INTO aud...')
+#1 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(123): logAudit(NULL, 'colantapatrick0...')
+#2 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(154): login('colantapatrick0...', 'f9721ff4ea11386...')
+#3 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 29
+[04-Mar-2025 05:50:18 Europe/Berlin] PHP Warning:  Undefined variable $emp_id in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 123
+[04-Mar-2025 05:50:18 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'email' in 'field list' in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:29
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(29): mysqli->prepare('INSERT INTO aud...')
+#1 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(123): logAudit(NULL, 'colantapatrick0...')
+#2 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(154): login('colantapatrick0...', 'f9721ff4ea11386...')
+#3 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 29
+[04-Mar-2025 05:51:07 Europe/Berlin] PHP Warning:  Undefined variable $emp_id in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 133
+[04-Mar-2025 05:51:07 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'email' in 'field list' in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:29
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(29): mysqli->prepare('INSERT INTO aud...')
+#1 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(133): logAudit(NULL, 'colantapatrick0...')
+#2 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(169): login('colantapatrick0...', 'f9721ff4ea11386...')
+#3 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 29
+[05-Mar-2025 13:32:57 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: MySQL server has gone away in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php:150
+Stack trace:
+#0 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(150): mysqli_stmt->execute()
+#1 C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php(168): login('lorenzmanabat04...', '44ffe44097bbce0...')
+#2 {main}
+  thrown in C:\xampp2\htdocs\dashboard\CAPSTONE\HRMS\login.php on line 150

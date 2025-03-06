@@ -1,5 +1,5 @@
 <?php
-date_default_timezone_set('Africa/Accra');
+date_default_timezone_set('Asia/Manila');
 include('../includes/config.php');
 include('../includes/session.php');
 
@@ -34,30 +34,38 @@ function changePassword($email, $oldPassword, $newPassword) {
             exit;
         }
 
-        // Hash the new password using MD5
-        $hashedNewPassword = md5($newPassword);
+        // Check password complexity
+if (!preg_match('/^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{10,}$/', $newPassword)) {
+    $response = array('status' => 'error', 'message' => 'Password must be at least 10 characters long, contain at least one uppercase letter, and one special character.');
+    echo json_encode($response);
+    exit;
+}
 
-        // Check if the new password is the same as the old password
-        if ($hashedNewPassword === $currentPasswordHash) {
-            $response = array('status' => 'error', 'message' => 'New password cannot be the same as the old password');
-            echo json_encode($response);
-            exit;
-        }
-        
-        // Prepare the query to update the password
-        $stmt = mysqli_prepare($conn, "UPDATE tblemployees SET password = ? WHERE email_id = ?");
-        mysqli_stmt_bind_param($stmt, "ss", $hashedNewPassword, $email);
-        mysqli_stmt_execute($stmt);
+// Hash the new password using MD5
+$hashedNewPassword = md5($newPassword);
 
-        if (mysqli_stmt_affected_rows($stmt) > 0) {
-            $response = array('status' => 'success', 'message' => 'Password reset successfully');
-            echo json_encode($response);
-            exit;
-        } else {
-            $response = array('status' => 'error', 'message' => 'Failed to reset password');
-            echo json_encode($response);
-            exit;
-        }
+// Check if the new password is the same as the old password
+if ($hashedNewPassword === $currentPasswordHash) {
+    $response = array('status' => 'error', 'message' => 'New password cannot be the same as the old password');
+    echo json_encode($response);
+    exit;
+}
+
+// Prepare the query to update the password
+$stmt = mysqli_prepare($conn, "UPDATE tblemployees SET password = ? WHERE email_id = ?");
+mysqli_stmt_bind_param($stmt, "ss", $hashedNewPassword, $email);
+mysqli_stmt_execute($stmt);
+
+if (mysqli_stmt_affected_rows($stmt) > 0) {
+    $response = array('status' => 'success', 'message' => 'Password reset successfully');
+    echo json_encode($response);
+    exit;
+} else {
+    $response = array('status' => 'error', 'message' => 'Failed to reset password');
+    echo json_encode($response);
+    exit;
+}
+
     }
 }
 

@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['email'])) {
     }
 
     // ✅ Create reset link
-    $reset_link = "http://localhost/dashboard/CAPSTONE/HRMS/reset_password.php" . $token;
+    $reset_link = "http://localhost/dashboard/CAPSTONE/HRMS/reset_password.php?" . 'token=' . $token;
 
     // ✅ Send email using PHPMailer
     $mail = new PHPMailer(true);

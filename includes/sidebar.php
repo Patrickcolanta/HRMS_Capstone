@@ -66,8 +66,15 @@
                                     <span class="pcoded-mtext">All Leaves</span>
                                 </a>
                             </li>
+                            
                         <?php endif; ?>
                     </ul>
+                    <li class="<?php echo ($page_name == 'audit_logs') ? 'active' : ''; ?>">
+                    <a href="audit_logs.php">
+                        <span class="pcoded-micon"><i class="feather icon-file-text"></i></span>
+                        <span class="pcoded-mtext">Audit Logs</span>
+                    </a>
+                </li>
                 </li>
                 <li class="pcoded-hasmenu <?php echo ($page_name == 'task' || $page_name == 'new_task' || $page_name == 'task_list') ? 'active pcoded-trigger' : ''; ?>">
                     <a href="javascript:void(0)">
@@ -109,6 +116,7 @@
                     <span class="pcoded-mtext">Hiring Process</span>
                 </a>
             </li>
+            
         </ul>
    
                 <li class="pcoded-hasmenu <?php echo ($page_name == 'attendance' || $page_name == 'my_attendance') ? 'active pcoded-trigger' : ''; ?>">
@@ -130,6 +138,8 @@
                     </ul>
                 </li>
             </ul>
+
+            
         <?php endif; ?>   
         <?php if ($session_role == 'Staff') : ?>
             <div class="pcoded-navigatio-lavel">Navigation</div>

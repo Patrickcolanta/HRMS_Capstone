@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -127,23 +128,27 @@ session_destroy();
 
 <script type="text/javascript">
     $('#login-form').click(function(event){
-        event.preventDefault(); // prevent the default form submission
-       
+        event.preventDefault(); // Prevent the default form submission
+
         (async () => {
             var data = {
                 email: $('.email').val(),
                 password: $('.password').val(), 
                 action: "save",
             };
+
+            // Validation for empty fields
             if (data.email.trim() === '' || data.password.trim() === '') {
                 Swal.fire({
                     icon: 'warning',
-                    text: 'Please all fields are required. Kindly fill all',
+                    text: 'All fields are required. Kindly fill them in.',
                     confirmButtonColor: '#ffc107',
                     confirmButtonText: 'OK'
                 });
                 return;
             }
+
+            // Email format validation
             var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(data.email)) {
                 Swal.fire({
@@ -154,48 +159,57 @@ session_destroy();
                 });
                 return;
             }
+
+            // AJAX request to login.php
             $.ajax({
                 url: 'login.php',
                 type: 'post',
                 data: data,
                 dataType: 'json',
-                success:function(response){
+                success: function(response) {
                     console.log(response.message);
-                    console.log("response user_type: " + response.role);
-                    if (response.status == 'success') {
-                        let titleMessage = response.message + " as " + response.role;
-                        if (response.password_reset == false) {
-                            titleMessage = "Please reset your password to proceed.";
-                        }
+
+                    if (response.status === 'otp_required') {
                         Swal.fire({
-                            icon: 'success',
-                            title: titleMessage,
+                            icon: 'info',
+                            title: 'OTP Sent',
+                            text: response.message,
                             confirmButtonColor: '#01a9ac',
                             confirmButtonText: 'OK'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                $('.md-close').trigger('click'); // close the modal form
-                                if (response.password_reset == false) {
-                                    window.location = 'reset_password.php';
-                                } else {
-                                    if (response.role == 'admin') {
-                                        window.location = 'admin/index.php';
-                                    } else if (response.role == 'manager') {
-                                        window.location = 'admin/index.php';
-                                    } else if (response.role == 'staff') {
-                                        window.location = 'staff/index.php';
-                                    } else {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            text: 'Invalid user type or error',
-                                            confirmButtonColor: '#eb3422',
-                                            confirmButtonText: 'OK'
-                                        });
-                                    }
-                                }
+                                window.location = 'verify_otp.php?email=' + encodeURIComponent(response.email);
                             }
                         });
-                    } else {
+
+                    } else if (response.status === 'success') {
+                        let role = response.role;
+                        let welcomeMessage = '';
+
+                        // Role-based welcome message
+                        if (role === 'Admin') {
+                            welcomeMessage = 'Welcome, Admin! Redirecting to the Admin Panel...';
+                        } else if (role === 'Manager') {
+                            welcomeMessage = 'Welcome, Manager! Accessing management dashboard...';
+                        } else if (role === 'Staff') {
+                            welcomeMessage = 'Welcome, Staff! Redirecting to your workspace...';
+                        } else {
+                            welcomeMessage = 'Login successful! Redirecting...';
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Login Successful',
+                            text: welcomeMessage,
+                            confirmButtonColor: '#01a9ac',
+                            confirmButtonText: 'Proceed'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = response.redirect_url; // Redirect based on role
+                            }
+                        });
+
+                    } else if (response.status === 'error') {
                         Swal.fire({
                             icon: 'error',
                             text: response.message,
@@ -204,19 +218,21 @@ session_destroy();
                         });
                     }
                 },
+
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
                     Swal.fire({
-                            icon: 'error',
-                            text: 'Internal Server Error: ' + textStatus,
-                            confirmButtonColor: '#eb3422',
-                            confirmButtonText: 'OK'
-                        });
+                        icon: 'error',
+                        text: 'Internal Server Error: ' + textStatus,
+                        confirmButtonColor: '#eb3422',
+                        confirmButtonText: 'OK'
+                    });
                 }
             });
         })()
-    })
+    });
 </script>
+
 
 </body>
 

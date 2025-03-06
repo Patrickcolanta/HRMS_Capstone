@@ -1,5 +1,5 @@
 <?php
-date_default_timezone_set('Africa/Accra');
+date_default_timezone_set('Asia/Manila');
 session_start();
 include('../includes/config.php');
 
@@ -396,7 +396,7 @@ $departmentFilter = $_POST['departmentFilter'];
 
 $userRole = $_SESSION['srole'];
 $userId = $_SESSION['slogin'];
-$userDepartment = $_SESSION['department'];
+$selectedDepartment = $_SESSION['department'];
 $isSupervisor = $_SESSION['is_supervisor'];
 
 // Generate the SQL query based on the search query and department filter
