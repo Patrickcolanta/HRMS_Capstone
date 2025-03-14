@@ -1,56 +1,48 @@
 <?php
-session_start();
-include('../includes/config.php'); // Database connection
+include('../includes/config.php');
+header('Content-Type: application/json');
 
-// Check if the user is logged in
-if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
-    header('Location: ../index.php');
-    exit();
-}
-
-// Check if the user has the role of Manager or Admin
-$userRole = $_SESSION['srole'];
-if ($userRole !== 'Manager' && $userRole !== 'Admin') {
-    header('Location: ../index.php');
-    exit();
-}
-
-// Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $job_id = intval($_POST['job_id']);
     $job_title = trim($_POST['job_title']);
-    $job_description = trim($_POST['job_description']);
-    $department_id = intval($_POST['department_id']);
     $job_type = trim($_POST['job_type']);
+    $vacancy = intval($_POST['vacancy']);
+    $salary = trim($_POST['salary']);
+    $location = trim($_POST['location']);
+    $description = trim($_POST['description']);
+    $status = trim($_POST['status']); // Get status from POST request
 
-    // Validate inputs
-    if (empty($job_id) || empty($job_title) || empty($job_description) || empty($department_id) || empty($job_type)) {
-        echo "<script>
-            alert('All fields are required!');
-            window.location.href='edit_job.php?id=$job_id';
-        </script>";
+    // Validate required fields
+    if (empty($job_title) || empty($job_type) || empty($vacancy) || empty($description) || empty($status)) {
+        echo json_encode(["status" => "error", "message" => "All fields are required."]);
         exit();
     }
 
-    // Prepare and bind statement to prevent SQL injection
-    $stmt = $conn->prepare("UPDATE job_listings 
-                            SET job_title = ?, job_description = ?, department_id = ?, job_type = ? 
-                            WHERE id = ?");
-    $stmt->bind_param("ssisi", $job_title, $job_description, $department_id, $job_type, $job_id);
-
-    // Execute update and check for errors
-    if ($stmt->execute()) {
-        echo "<script>
-            alert('Job updated successfully!');
-            window.location.href='job_listings.php';
-        </script>";
-    } else {
-        echo "<script>
-            alert('Error updating job: " . addslashes($stmt->error) . "');
-            window.location.href='edit_job.php?id=$job_id';
-        </script>";
+    // Ensure status is either 'Active' or 'Inactive' for security
+    if ($status !== "Active" && $status !== "Inactive") {
+        echo json_encode(["status" => "error", "message" => "Invalid status value."]);
+        exit();
     }
 
-    $stmt->close();
+    // Ensure salary is a valid number (float)
+    if (!is_numeric($salary)) {
+        echo json_encode(["status" => "error", "message" => "Salary must be a valid number."]);
+        exit();
+    }
+
+    // Use prepared statement to prevent SQL injection
+    $sql = "UPDATE job_listings SET job_title = ?, job_type = ?, vacancy = ?, salary = ?, location = ?, description = ?, status = ? WHERE id = ?";
+    
+    // Bind the parameters (note the types for each field)
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "ssissssi", $job_title, $job_type, $vacancy, $salary, $location, $description, $status, $job_id);
+
+    if (mysqli_stmt_execute($stmt)) {
+        echo json_encode(["status" => "success", "message" => "Job updated successfully!"]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Error updating job: " . mysqli_error($conn)]);
+    }
+
+    mysqli_stmt_close($stmt);
 }
 ?>

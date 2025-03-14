@@ -1,37 +1,42 @@
 <?php
-session_start(); // Ensure session is started
-include('../includes/config.php'); // Ensure database connection
+include('../includes/config.php');
+header('Content-Type: application/json');
 
-// Check if the user is logged in and has the right role
-if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole']) || 
-    ($_SESSION['srole'] !== 'Manager' && $_SESSION['srole'] !== 'Admin')) {
-    header('Location: ../index.php');
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    echo json_encode(["status" => "error", "message" => "Invalid request method."]);
     exit();
 }
 
-// Ensure a job ID is provided
-if (!isset($_GET['id']) || empty($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: job_listings.php");
+if (!isset($_POST['job_id']) || empty($_POST['job_id'])) {
+    echo json_encode(["status" => "error", "message" => "Job ID is required."]);
     exit();
 }
 
-$job_id = intval($_GET['id']); // Sanitize job ID
+$job_id = intval($_POST['job_id']);
 
-// Ensure table name matches your database structure
-$query = "DELETE FROM job_listings WHERE id = ?";
-$stmt = mysqli_prepare($conn, $query);
+// Check if the job exists
+$checkQuery = "SELECT * FROM job_listings WHERE id = ?";
+$stmtCheck = mysqli_prepare($conn, $checkQuery);
+mysqli_stmt_bind_param($stmtCheck, "i", $job_id);
+mysqli_stmt_execute($stmtCheck);
+$result = mysqli_stmt_get_result($stmtCheck);
 
-if ($stmt) {
-    mysqli_stmt_bind_param($stmt, "i", $job_id);
-    if (mysqli_stmt_execute($stmt)) {
-        echo "<script>alert('Job deleted successfully!'); window.location='job_listings.php';</script>";
-    } else {
-        echo "<script>alert('Error deleting job.'); window.location='job_listings.php';</script>";
-    }
-    mysqli_stmt_close($stmt);
+if (mysqli_num_rows($result) === 0) {
+    echo json_encode(["status" => "error", "message" => "Job not found."]);
+    exit();
+}
+
+// Delete the job
+$sql = "DELETE FROM job_listings WHERE id = ?";
+$stmt = mysqli_prepare($conn, $sql);
+mysqli_stmt_bind_param($stmt, "i", $job_id);
+
+if (mysqli_stmt_execute($stmt)) {
+    echo json_encode(["status" => "success", "message" => "Job deleted successfully."]);
 } else {
-    echo "<script>alert('Database error: Unable to prepare statement.'); window.location='job_listings.php';</script>";
+    echo json_encode(["status" => "error", "message" => "Failed to delete job."]);
 }
 
+mysqli_stmt_close($stmt);
 mysqli_close($conn);
 ?>

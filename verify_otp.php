@@ -109,6 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <p class="text-center text-muted">Type in the 6-digit pin code we sent to your email.</p>
                                     </div>
                                 </div>
+                                <p class="text-center text-muted">
+    Didn't receive the OTP? <a href="#" id="resend-otp" class="text-primary">Resend OTP</a>
+</p>
+<p id="resend-timer" class="text-center text-danger" style="display:none;"></p>
                                 <div class="form-group form-primary">
     <input type="text" id="otp" name="otp" class="form-control" required 
            placeholder="Enter your 6-digit pin code" 
@@ -133,63 +137,120 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </section>
 
+    
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        $(document).ready(function() {
-            $("#otp-form").submit(function(event) {
-                event.preventDefault(); // Prevent default form submission
+    $(document).ready(function() {
+        let canResend = true;
 
-                let otp = $("#otp").val().trim();
+        $("#otp-form").submit(function(event) {
+            event.preventDefault();
+            let otp = $("#otp").val().trim();
+            
+            if (otp === '') {
+                Swal.fire({
+                    icon: 'warning',
+                    text: 'Please enter the OTP',
+                    confirmButtonColor: '#ffc107',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
 
-                if (otp === '') {
-                    Swal.fire({
-                        icon: 'warning',
-                        text: 'Please enter the OTP',
-                        confirmButtonColor: '#ffc107',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                $.ajax({
-                    url: "verify_otp.php",
-                    type: "POST",
-                    data: { otp: otp },
-                    dataType: "json",
-                    success: function(response) {
-                        if (response.status === "success") {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.message,
-                                confirmButtonColor: '#01a9ac',
-                                confirmButtonText: 'Proceed'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = response.redirect;
-                                }
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                text: response.message,
-                                confirmButtonColor: '#eb3422',
-                                confirmButtonText: 'OK'
-                            });
-                        }
-                    },
-                    error: function() {
+            $.ajax({
+                url: "verify_otp.php",
+                type: "POST",
+                data: { otp: otp },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === "success") {
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.message,
+                            confirmButtonColor: '#01a9ac',
+                            confirmButtonText: 'Proceed'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = response.redirect;
+                            }
+                        });
+                    } else {
                         Swal.fire({
                             icon: 'error',
-                            text: 'Something went wrong! Please try again.',
+                            text: response.message,
                             confirmButtonColor: '#eb3422',
                             confirmButtonText: 'OK'
                         });
                     }
-                });
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Something went wrong! Please try again.',
+                        confirmButtonColor: '#eb3422',
+                        confirmButtonText: 'OK'
+                    });
+                }
             });
         });
-    </script>
+
+        // Handle Resend OTP
+        $("#resend-otp").click(function(event) {
+            event.preventDefault();
+
+            if (!canResend) return;
+
+            canResend = false;
+            let timer = 60; 
+            $("#resend-timer").text(`Please wait ${timer} seconds before requesting a new OTP.`).show();
+            $("#resend-otp").hide();
+
+            let countdown = setInterval(() => {
+                timer--;
+                $("#resend-timer").text(`Please wait ${timer} seconds before requesting a new OTP.`);
+                if (timer <= 0) {
+                    clearInterval(countdown);
+                    $("#resend-otp").show();
+                    $("#resend-timer").hide();
+                    canResend = true;
+                }
+            }, 1000);
+
+            $.ajax({
+                url: "resend_otp.php",
+                type: "POST",
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === "success") {
+                        Swal.fire({
+                            icon: 'success',
+                            text: 'A new OTP has been sent to your email.',
+                            confirmButtonColor: '#01a9ac',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: response.message,
+                            confirmButtonColor: '#eb3422',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Something went wrong! Please try again.',
+                        confirmButtonColor: '#eb3422',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <?php
 session_start();
 include('../includes/header.php');
-include('../includes/config.php'); // Ensure this file sets up $conn
+include('../includes/config.php'); // Database connection
 
 // Check if the user is logged in
 if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
@@ -16,12 +16,8 @@ if ($userRole !== 'Manager' && $userRole !== 'Admin') {
     exit();
 }
 
-// Fetch applications from the database
-$sql = "SELECT a.id, a.applicant_name, a.email, a.phone, a.address, a.cover_letter, 
-               j.job_title, a.resume, a.status, a.applied_at
-        FROM applications a
-        JOIN job_listings j ON a.job_id = j.id
-        ORDER BY a.applied_at DESC";
+// Fetch job applications
+$sql = "SELECT id, first_name, last_name, status FROM job_applications ORDER BY applied_at ASC";
 
 $result = mysqli_query($conn, $sql);
 ?>
@@ -31,21 +27,18 @@ $result = mysqli_query($conn, $sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Applications</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Applications</title>
 </head>
 <body>
+<?php include('../includes/loader.php') ?>
+
 <div id="pcoded" class="pcoded">
     <div class="pcoded-container navbar-wrapper">
-
         <?php include('../includes/topbar.php'); ?>
-
         <div class="pcoded-main-container">
             <div class="pcoded-wrapper">
                 <?php $page_name = "applications"; ?>
                 <?php include('../includes/sidebar.php'); ?>
-
                 <div class="pcoded-content">
                     <div class="pcoded-inner-content">
                         <div class="main-body">
@@ -54,161 +47,209 @@ $result = mysqli_query($conn, $sql);
                                     <div class="row align-items-end">
                                         <div class="col-lg-8">
                                             <div class="page-header-title">
-                                                <div class="d-inline">
-                                                    <h4>Job Applications</h4>
-                                                    <span>Review job applicants</span>
-                                                </div>
+                                                <h4>Job Applications</h4>
+                                            
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="page-body">
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <div class="card">
-                                                <div class="card-header">
-                                                    <h5>List of Applicants</h5>
+                                    <div class="card">
+                                        <div class="card-header">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5>List of Applicants</h5>
+                                            <input type="text" id="applicantSearch" class="form-control w-25" placeholder="Search Applicant...">
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead class="table-dark">
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Applicant ID</th>
+                                                            <th>Name</th>
+                                                            <th>Status</th>
+                                                            <th>Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php
+                                                        if (mysqli_num_rows($result) > 0) {
+                                                            $count = 1;
+                                                            while ($row = mysqli_fetch_assoc($result)) {
+                                                                echo "<tr id='row-{$row['id']}'>
+                                                                    <td>{$count}</td>
+                                                                    <td>{$row['id']}</td>
+                                                                    <td>" . htmlspecialchars($row['first_name']) . "</td>
+                                                                    <td id='status-{$row['id']}'>" . htmlspecialchars($row['status']) . "</td>
+                                                                    <td>
+                                                                        <button class='btn btn-info btn-sm view-btn' data-id='{$row['id']}'>View</button>
+                                                                        <button class='btn btn-warning btn-sm edit-btn' data-id='{$row['id']}'>Edit</button>
+                                                                        <button class='btn btn-danger btn-sm delete-btn' data-id='{$row['id']}'>Delete</button>
+                                                                    </td>
+                                                                </tr>";
+                                                                $count++;
+                                                            }
+                                                        } else {
+                                                            echo "<tr><td colspan='5' class='text-center text-muted'>No applications found</td></tr>";
+                                                        }
+                                                        ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- View Applicant Modal -->
+                                    <div class="modal fade" id="viewModal" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Applicant Details</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                 </div>
-                                                <div class="card-block">
-                                                    <div class="table-responsive">
-                                                        <table class="table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>#</th>
-                                                                    <th>Applicant Name</th>
-                                                                    <th>Email</th>
-                                                                    <th>Phone</th>
-                                                                    <th>Address</th>
-                                                                    <th>Job Title</th>
-                                                                    <th>Cover Letter</th>
-                                                                    <th>Resume</th>
-                                                                    <th>Status</th>
-                                                                    <th>Applied At</th>
-                                                                    <th>Actions</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-    <?php
-    if ($result && mysqli_num_rows($result) > 0) {
-        $count = 1;
-        while ($row = mysqli_fetch_assoc($result)) {
-            $applicant_name = htmlspecialchars($row['applicant_name']);
-            $email = htmlspecialchars($row['email']);
-            $phone = htmlspecialchars($row['phone']);
-            $address = htmlspecialchars($row['address']);
-            $cover_letter = htmlspecialchars($row['cover_letter']);
-            $job_title = htmlspecialchars($row['job_title']);
-            $status = htmlspecialchars($row['status']);
-            $applied_at = htmlspecialchars($row['applied_at']);
-
-            // Corrected directory
-            $resumeFile = 'uploads/' . htmlspecialchars($row['resume']);
-
-            // Button to open the resume
-            if (!empty($row['resume']) && file_exists($resumeFile)) {
-                $resumeLink = "<button onclick=\"window.open('$resumeFile', '_blank')\" class='btn btn-info btn-sm'>View Resume</button>";
-            } else {
-                $resumeLink = "<span class='text-danger'>File not found</span>";
-            }
-
-            echo "<tr id='row-{$row['id']}'>
-                <td>{$count}</td>
-                <td>{$applicant_name}</td>
-                <td>{$email}</td>
-                <td>{$phone}</td>
-                <td>{$address}</td>
-                <td>{$job_title}</td>
-                <td>{$cover_letter}</td>
-                <td>{$resumeLink}</td>
-                <td id='status-{$row['id']}'>{$status}</td>
-                <td>{$applied_at}</td>
-                <td>
-                    <a href='approve_application.php?id={$row['id']}' class='btn btn-success btn-sm approve-btn' data-id='{$row['id']}'>Approve</a>
-                    <button class='btn btn-danger btn-sm reject-btn' data-id='{$row['id']}'>Reject</button>
-                </td>
-            </tr>";
-            $count++;
-        }
-    } else {
-        echo "<tr><td colspan='11' class='text-center'>No applications found</td></tr>";
-    }
-    ?>
-</tbody>
-
-                                                        </table>
-                                                    </div>
+                                                <div class="modal-body" id="viewModalBody">
+                                                    <!-- Details will be loaded dynamically -->
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<?php include('../includes/scripts.php')?>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll(".reject-btn").forEach(button => {
-        button.addEventListener("click", function() {
-            let applicationId = this.getAttribute("data-id");
-            Swal.fire({
-                title: "Reject Application",
-                input: "textarea",
-                inputLabel: "Rejection Reason",
-                inputPlaceholder: "Enter reason here...",
-                showCancelButton: true,
-                confirmButtonText: "Reject",
-                preConfirm: (reason) => {
-                    return fetch('reject_application.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: `application_id=${applicationId}&reason=${encodeURIComponent(reason)}`
-                    }).then(response => response.json());
-                }
-            }).then(result => {
-                if (result.value && result.value.status === 'success') {
-                    Swal.fire("Success", result.value.message, "success");
-                    
-                    // Remove the row from the table
-                    document.getElementById(`row-${applicationId}`).remove();
-                } else {
-                    Swal.fire("Error", result.value.message, "error");
-                }
-            });
-        });
-    });
 
-    // Approve button handling
-    document.querySelectorAll(".approve-btn").forEach(button => {
-        button.addEventListener("click", function(event) {
-            event.preventDefault();
-            let applicationId = this.getAttribute("data-id");
+                                    <!-- Edit Status Modal -->
+                                    <div class="modal fade" id="editModal" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Edit Applicant Status</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <input type="hidden" id="editApplicantId">
+                                                    <select id="statusSelect" class="form-select">
+                                                        <option value="Pending">Pending</option>
+                                                        <option value="Initial Interview">Initial Interview</option>
+                                                        <option value="Final Interview">Final Interview</option>
+                                                        <option value="Pass">Pass</option>
+                                                        <option value="Fail">Fail</option>
+                                                    </select>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-success" id="saveStatusBtn">Save</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-            fetch(`approve_application.php?id=${applicationId}`, {
-                method: "GET",
-            })
-            .then(response => response.text())
-            .then(result => {
-                if (result.includes("success")) {
-                    Swal.fire("Success", "Application approved successfully!", "success");
-                    
-                    // Remove the row from the table
-                    document.getElementById(`row-${applicationId}`).remove();
-                } else {
-                    Swal.fire("Error", "Failed to approve application.", "error");
-                }
-            });
-        });
+                                    <?php include('../includes/scripts.php'); ?>
+
+
+                                    <script>
+document.getElementById("applicantSearch").addEventListener("keyup", function () {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll("tbody tr"); // Select all table rows inside <tbody>
+
+    rows.forEach(row => {
+        let applicantID = row.cells[1].textContent.toLowerCase(); // Get Applicant ID
+        let applicantName = row.cells[2].textContent.toLowerCase(); // Get Name
+
+        // Show row if the search term matches ID or Name
+        if (applicantID.includes(filter) || applicantName.includes(filter)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
     });
 });
-</script>
 
+</script>
+                                    <script>
+                            
+                            document.addEventListener("DOMContentLoaded", function () {
+    // 📌 View Applicant Details
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("view-btn")) {
+            let applicantId = event.target.getAttribute("data-id");
+            fetch("get_applicant_details.php?id=" + applicantId)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("viewModalBody").innerHTML = data;
+                    new bootstrap.Modal(document.getElementById("viewModal")).show();
+                })
+                .catch(error => console.error("Error fetching applicant details:", error));
+        }
+    });
+    
+
+    // 📌 Open Edit Status Modal
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("edit-btn")) {
+            let applicantId = event.target.getAttribute("data-id");
+            document.getElementById("editApplicantId").value = applicantId;
+            new bootstrap.Modal(document.getElementById("editModal")).show();
+        }
+    });
+
+    // 📌 Save Edited Status
+    document.getElementById("saveStatusBtn").addEventListener("click", function () {
+        let applicantId = parseInt(document.getElementById("editApplicantId").value, 10);
+let newStatus = document.getElementById("statusSelect").value.trim();
+
+
+    let formData = new FormData();
+    formData.append("id", applicantId);
+    formData.append("status", newStatus);
+
+    fetch("edit_applicant_status.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update status in the table
+            let statusElement = document.getElementById(`status-${applicantId}`);
+            if (statusElement) {
+                statusElement.textContent = newStatus;
+            }
+
+            // Close modal
+            let editModalElement = document.getElementById("editModal");
+            if (editModalElement) {
+                let editModalInstance = bootstrap.Modal.getOrCreateInstance(editModalElement);
+                editModalInstance.hide();
+            }
+        } else {
+            alert("Failed to update status: " + data.message);
+        }
+    })
+    .catch(error => console.error("Error updating status:", error));
+});
+
+
+
+
+    // 📌 Delete Applicant
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("delete-btn")) {
+            let applicantId = event.target.getAttribute("data-id");
+
+            if (confirm("Are you sure you want to delete this applicant?")) {
+                fetch(`delete_applicant.php?id=${applicantId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById(`row-${applicantId}`).remove();
+                        } else {
+                            alert("Failed to delete applicant.");
+                        }
+                    })
+                    .catch(error => console.error("Error deleting applicant:", error));
+            }
+        }
+    });
+});
+                                    </script>
 
 </body>
 </html>
