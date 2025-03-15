@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['email'])) {
     }
 
     // ✅ Check if email exists in database
-    $stmt = $conn->prepare("SELECT emp_id FROM tblemployees WHERE email_id = ?");
+    $stmt = $conn->prepare("SELECT emp_id, lockout_time FROM tblemployees WHERE email_id = ?");
     if (!$stmt) {
         echo json_encode(['status' => 'error', 'message' => 'SQL Error: ' . $conn->error]);
         exit();
@@ -41,6 +41,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['email'])) {
 
     $user = $result->fetch_assoc();
     $user_id = $user['emp_id']; // ✅ Match correct column name
+    $lockout_time = $user['lockout_time'];
+
+    // ✅ Check if the account is locked
+    if (!empty($lockout_time) && $lockout_time !== '0000-00-00 00:00:00') {
+        $lockout_duration = time() - strtotime($lockout_time);
+        if ($lockout_duration < $lockout_time) {
+            // Account is locked, prevent password reset
+            echo json_encode(['status' => 'error', 'message' => 'Your account is locked. Please contact the admin or try again later.']);
+            exit();
+        }
+    }
 
     // ✅ Generate a secure token
     $token = bin2hex(random_bytes(50));
