@@ -29,7 +29,7 @@ if ($row = $result->fetch_assoc()) {
         <p><strong>Applied At:</strong> <?= date("F j, Y, g:i a", strtotime($row['applied_at'])) ?></p>
 
         <?php if (!empty($row['resume_path'])) { ?>
-            <p><strong>Resume:</strong> <a href="../uploads/<?= htmlspecialchars($row['resume_path']) ?>" target="_blank" class="btn btn-primary btn-sm">View Resume</a></p>
+            <p><strong>Resume:</strong> <a href="../<?= htmlspecialchars($row['resume_path']) ?>" target="_blank" class="btn btn-primary btn-sm">View Resume</a></p>
         <?php } else { ?>
             <p><strong>Resume:</strong> No resume uploaded</p>
         <?php } ?>

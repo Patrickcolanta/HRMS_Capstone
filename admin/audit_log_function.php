@@ -15,21 +15,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         archiveLog($conn);
     } elseif (isset($_POST["restore_log"])) {
         restoreLog($conn);
+    } elseif (isset($_POST["failed_login"])) {
+        logFailedLogin($conn, $_POST["email"]);
     } else {
         echo json_encode(["status" => "error", "message" => "Invalid request"]);
     }
+} else {
+    echo json_encode(["status" => "error", "message" => "Invalid request method"]);
+    exit();
 }
 
 // Function to archive logs
 function archiveLog($conn) {
-    if (!isset($_POST["log_id"]) || empty($_POST["log_id"])) {
+    if (!isset($_POST["log_id"]) || !is_numeric($_POST["log_id"])) {
         echo json_encode(["status" => "error", "message" => "Invalid log ID"]);
         exit();
     }
 
     $log_id = intval($_POST["log_id"]);
-
     $stmt = $conn->prepare("UPDATE audit_logs SET is_archived = 1 WHERE id = ?");
+    
     if (!$stmt) {
         echo json_encode(["status" => "error", "message" => "Database error: " . $conn->error]);
         exit();
@@ -49,14 +54,14 @@ function archiveLog($conn) {
 
 // Function to restore logs
 function restoreLog($conn) {
-    if (!isset($_POST["log_id"]) || empty($_POST["log_id"])) {
+    if (!isset($_POST["log_id"]) || !is_numeric($_POST["log_id"])) {
         echo json_encode(["status" => "error", "message" => "Invalid log ID"]);
         exit();
     }
 
     $log_id = intval($_POST["log_id"]);
-
     $stmt = $conn->prepare("UPDATE audit_logs SET is_archived = 0 WHERE id = ?");
+    
     if (!$stmt) {
         echo json_encode(["status" => "error", "message" => "Database error: " . $conn->error]);
         exit();
@@ -73,14 +78,9 @@ function restoreLog($conn) {
     $stmt->close();
     exit();
 }
-?>
 
-
-
-/**
- * Logs user actions in the audit_logs table.
- */
-function logAction($staff_id, $emp_id, $action, $conn) {
+// Function to log user actions
+function logAction($conn, $email, $action) {
     if (!$conn) {
         error_log("Database connection is missing in logAction function.");
         return;
@@ -89,14 +89,13 @@ function logAction($staff_id, $emp_id, $action, $conn) {
     $ip_address = getUserIP(); 
     $user_agent = getUserAgent(); 
 
-    $stmt = $conn->prepare("INSERT INTO audit_logs (staff_id, emp_id, action, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)");
-
+    $stmt = $conn->prepare("INSERT INTO audit_logs (email_id, action, ip_address, user_agent, timestamp) VALUES (?, ?, ?, ?, NOW())");
     if (!$stmt) {
         error_log("Failed to prepare statement in logAction: " . $conn->error);
         return;
     }
 
-    $stmt->bind_param("iisss", $staff_id, $emp_id, $action, $ip_address, $user_agent);
+    $stmt->bind_param("ssss", $email, $action, $ip_address, $user_agent);
     
     if (!$stmt->execute()) {
         error_log("Failed to log action: " . $stmt->error);
@@ -105,9 +104,14 @@ function logAction($staff_id, $emp_id, $action, $conn) {
     $stmt->close();
 }
 
-/**
- * Retrieves the real IP address of the user.
- */
+// Function to log failed login attempts
+function logFailedLogin($conn, $email) {
+    logAction($conn, $email, "Failed login attempt");
+    echo json_encode(["status" => "success", "message" => "Failed login recorded"]);
+    exit();
+}
+
+// Function to get real IP address
 function getUserIP() {
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
         return filter_var($_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP);
@@ -119,11 +123,8 @@ function getUserIP() {
     }
 }
 
-/**
- * Retrieves the User-Agent string safely.
- */
+// Function to get User-Agent
 function getUserAgent() {
     return isset($_SERVER['HTTP_USER_AGENT']) ? htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES, 'UTF-8') : 'Unknown';
 }
-
 ?>

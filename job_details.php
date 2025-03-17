@@ -29,6 +29,8 @@ if (!$job) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($job['job_title']) ?> - Job Details</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -219,38 +221,44 @@ document.getElementById('phone').addEventListener('input', function() {
     }
 
     fetch('submit_application.php', {
-        method: 'POST',
-        body: formData
+    method: 'POST',
+    body: formData
     })
-    .then(response => response.text()) // Get raw response for debugging
+    .then(response => response.text())  // Get raw response
     .then(data => {
-        console.log("Raw Response:", data); // Debugging
+        console.log("📢 Raw Response:", data); // Log the full response
 
         try {
             let jsonData = JSON.parse(data); // Try parsing JSON
-            console.log("Parsed JSON:", jsonData);
-
-            if (jsonData.status === 'success') {
-                alert("✅ " + jsonData.message);
-
-                // Close modal if exists
-                let applyJobModal = document.getElementById('applyJobModal');
-                if (applyJobModal) {
-                    let modalInstance = bootstrap.Modal.getInstance(applyJobModal) || new bootstrap.Modal(applyJobModal);
-                    modalInstance.hide();
-                }
-            } else {
-                alert("❌ " + jsonData.message);
-            }
+            console.log("✅ Parsed JSON:", jsonData);
+            
+            Swal.fire({
+                icon: jsonData.status === 'success' ? 'success' : 'error',
+                title: jsonData.status === 'success' ? 'Application Submitted!' : 'Error',
+                text: jsonData.message,
+                confirmButtonColor: jsonData.status === 'success' ? '#01a9ac' : '#eb3422'
+            });
         } catch (error) {
-            console.error("JSON Parse Error:", error);
-            alert("❌ Server returned an invalid response. Check the console.");
+            console.error("❌ JSON Parse Error:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Response!',
+                text: 'Server returned an invalid response. Check the console.',
+                confirmButtonColor: '#eb3422'
+            });
         }
     })
     .catch(error => {
-        console.error('Fetch Error:', error);
-        alert('🚨 Submission failed. Please try again.');
+        console.error("🚨 Fetch Error:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Submission Failed!',
+            text: '🚨 Something went wrong. Please try again.',
+            confirmButtonColor: '#eb3422'
+        });
     });
+
+
 });
 
 

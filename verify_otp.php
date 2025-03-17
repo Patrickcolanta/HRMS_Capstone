@@ -219,9 +219,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }, 1000);
 
+            // Extract email from URL
+            let urlParams = new URLSearchParams(window.location.search);
+            let email = urlParams.get('email'); // Get email from URL
+
+            console.log("Extracted Email:", email); 
+
+            if (!email) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Email not found in URL!',
+                    confirmButtonColor: '#eb3422',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
             $.ajax({
                 url: "resend_otp.php",
                 type: "POST",
+                data: { email: email },  // Send email as POST data
                 dataType: "json",
                 success: function(response) {
                     if (response.status === "success") {
@@ -240,16 +257,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         });
                     }
                 },
-                error: function() {
-                    Swal.fire({
-                        icon: 'error',
-                        text: 'Something went wrong! Please try again.',
-                        confirmButtonColor: '#eb3422',
-                        confirmButtonText: 'OK'
-                    });
+                error: function(xhr, status, error) {
+                console.error("AJAX Error:", error); // Log AJAX error
+                console.error("XHR Response:", xhr.responseText); // Log full server response
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Something went wrong! Check console for details.',
+                    confirmButtonColor: '#eb3422',
+                    confirmButtonText: 'OK'
+                });
                 }
             });
         });
+
     });
 </script>
 </body>
