@@ -1,5 +1,5 @@
 <?php
-include('admin/config.php'); // Database connection
+include('../admin/config.php'); // Database connection
 ?>
 
 <!DOCTYPE html>
@@ -47,8 +47,8 @@ include('admin/config.php'); // Database connection
             </div>
 
             <div>
-                <a href="index.php" class="btn btn-outline-dark">Login</a>
-                <a href="index.php" class="btn btn-dark">Get Started</a>
+                <a href="../index.php" class="btn btn-outline-dark">Login</a>
+                <a href="../index.php" class="btn btn-dark">Get Started</a>
             </div>
 
         </div>
@@ -187,7 +187,7 @@ include('admin/config.php'); // Database connection
     <div class="py-5 bg-light">
 
         <div class="container">
-            <h2 class="text-center mb-2"><strong>Why Choose Us</strong></h2>
+            <h2 class="text-center mb-2"><strong>Why Chohttps://github.com/Patrickcolanta/HRMS_Capstone.gitose Us</strong></h2>
             <p class="text-center text-muted">We offer more than just a place to live - we provide a complete lifestyle experience.</p>
 
 

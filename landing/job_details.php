@@ -1,5 +1,5 @@
 <?php
-include('admin/config.php'); // Database connection
+include('../admin/config.php'); // Database connection
 
 // Check if job ID is provided
 if (!isset($_GET['id'])) {
@@ -96,7 +96,7 @@ if (!$job) {
         <p class="job-description"><?= nl2br(htmlspecialchars($job['description'])) ?></p>
 
         <div class="text-center mt-4">
-            <a href="recruitment_index.php" class="btn-custom"><i class="fa-solid fa-arrow-left"></i> Back to Home Page</a>
+            <a href="index.php" class="btn-custom"><i class="fa-solid fa-arrow-left"></i> Back to Home Page</a>
         </div>
 
         <!-- Apply Now Button -->

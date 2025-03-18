@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 header('Content-Type: application/json'); // Ensure JSON response
 
-include('admin/config.php'); // Include database connection
+include('../admin/config.php'); // Include database connection
 
 $response = ['status' => 'error', 'message' => 'Unknown error occurred.'];
 
