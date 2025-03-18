@@ -8,7 +8,7 @@ if (!isset($_GET['id'])) {
 
 $applicantId = intval($_GET['id']);
 
-$sql = "SELECT ja.id, ja.first_name, ja.last_name, ja.email, ja.phone,  ja.status, ja.applied_at, ja.resume_path, 
+$sql = "SELECT ja.id, ja.first_name, ja.last_name, ja.email, ja.phone, ja.status, ja.applied_at, ja.resume_path, 
                jl.job_title 
         FROM job_applications ja
         LEFT JOIN job_listings jl ON ja.job_id = jl.id
@@ -19,13 +19,23 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($row = $result->fetch_assoc()) {
+    // ✅ Enforce only allowed statuses
+    $allowedStatuses = ["Pending", "For Interview", "Rejected"];
+    $status = in_array($row['status'], $allowedStatuses) ? $row['status'] : "Pending";
+
+    // ✅ Assign badge colors
+    $statusBadgeClass = [
+        "Pending" => "warning",
+        "For Interview" => "primary",
+        "Rejected" => "danger"
+    ][$status];
 ?>
     <div class="p-3">
         <h5><?= htmlspecialchars($row['first_name'] . " " . $row['last_name']) ?></h5>
         <p><strong>Applied for:</strong> <?= htmlspecialchars($row['job_title']) ?></p>
         <p><strong>Email:</strong> <a href="mailto:<?= htmlspecialchars($row['email']) ?>"><?= htmlspecialchars($row['email']) ?></a></p>
         <p><strong>Phone:</strong> <a href="tel:<?= htmlspecialchars($row['phone']) ?>"><?= htmlspecialchars($row['phone']) ?></a></p>
-        <p><strong>Status:</strong> <span class="badge bg-<?= $row['status'] == "Active" ? "success" : "danger" ?>"><?= htmlspecialchars($row['status']) ?></span></p>
+        <p><strong>Status:</strong> <span class="badge bg-<?= $statusBadgeClass ?>"><?= htmlspecialchars($status) ?></span></p>
         <p><strong>Applied At:</strong> <?= date("F j, Y, g:i a", strtotime($row['applied_at'])) ?></p>
 
         <?php if (!empty($row['resume_path'])) { ?>

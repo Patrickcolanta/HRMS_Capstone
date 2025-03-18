@@ -9,10 +9,10 @@ $data = $_POST ?: json_decode(file_get_contents("php://input"), true);
 $applicantId = isset($data['id']) ? intval($data['id']) : 0;
 $newStatus = isset($data['status']) ? trim($data['status']) : "";
 
-// ✅ Allowed statuses (match frontend dropdown values)
-$allowedStatuses = ['Pending', 'Initial Interview', 'Final Interview', 'Pass', 'Fail'];
+// ✅ Allowed statuses (Restricted to only: Pending, For Interview, Rejected)
+$allowedStatuses = ['Pending', 'For Interview', 'Rejected'];
 
-// ✅ Debug Logging
+// ✅ Debug Logging (Optional - Can be removed in production)
 file_put_contents("debug_log.txt", "Received ID: $applicantId, Status: $newStatus\n", FILE_APPEND);
 
 // ✅ Validate Input
@@ -29,6 +29,7 @@ $stmt->store_result();
 
 if ($stmt->num_rows === 0) {
     echo json_encode(["success" => false, "message" => "Applicant not found."]);
+    $stmt->close();
     exit();
 }
 $stmt->close();

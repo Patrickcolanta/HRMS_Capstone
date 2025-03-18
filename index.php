@@ -70,6 +70,8 @@ session_destroy();
                                     </div>
                                     <div class="form-group form-primary">
                                         <input type="password" id="password" name="password" class="form-control password" required="" placeholder="Password">
+                                      
+
                                         <span class="form-bar"></span>
                                     </div>
                                     <div class="row m-t-25 text-left">
@@ -101,6 +103,8 @@ session_destroy();
   
     <!-- Warning Section Ends -->
     <!-- Required Jquery -->
+
+    
     <script type="text/javascript" src=".\files\bower_components\jquery\js\jquery.min.js"></script>
     <script type="text/javascript" src=".\files\bower_components\jquery-ui\js\jquery-ui.min.js"></script>
     <script type="text/javascript" src=".\files\bower_components\popper.js\js\popper.min.js"></script>

@@ -95,7 +95,7 @@
                     </ul>
                 </li>
     <!-- Recruitment Management Feature -->
-<li class="pcoded-hasmenu <?php echo ($page_name == 'recruitment' || $page_name == 'job_listings' || $page_name == 'applications' || $page_name == 'hiring_process' || $page_name == 'schedule_interview') ? 'active pcoded-trigger' : ''; ?>">
+<li class="pcoded-hasmenu <?php echo ($page_name == 'recruitment' || $page_name == 'job_listings' || $page_name == 'applications' || $page_name == 'job_offer' || $page_name == 'schedule_interview') ? 'active pcoded-trigger' : ''; ?>">
     <a href="javascript:void(0)">
         <span class="pcoded-micon"><i class="feather icon-briefcase"></i></span>
         <span class="pcoded-mtext">Recruitment</span>
@@ -116,8 +116,8 @@
                 <span class="pcoded-mtext">Schedule Interview</span>
             </a>
         </li>
-        <li class="<?php echo ($page_name == 'hiring_process') ? 'active' : ''; ?>">
-            <a href="hiring_process.php">
+        <li class="<?php echo ($page_name == 'job_offer') ? 'active' : ''; ?>">
+            <a href="job_offer.php">
                 <span class="pcoded-mtext">Job Offer and Onboarding</span>
             </a>
         </li>
@@ -148,8 +148,8 @@
 
             <div class="pcoded-navigatio-lavel">Reports</div>
 <ul class="pcoded-item pcoded-left-item">
-    <li class="<?php echo ($page_name == 'dashboard') ? 'active' : ''; ?>">
-        <a href="index.php">
+    <li class="<?php echo ($page_name == 'analytics') ? 'active' : ''; ?>">
+        <a href="analytics.php">
             <span class="pcoded-micon"><i class="feather icon-bar-chart-2"></i></span>
             <span class="pcoded-mtext">Analytics</span>
         </a>

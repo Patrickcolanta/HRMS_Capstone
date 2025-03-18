@@ -11,7 +11,7 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole']) || !in_array($_SES
 
 $userRole = $_SESSION['srole'];
 
-// Fetch job applications with interview details only if the status is Initial Interview or Final Interview
+// Fetch job applications with interview details only if the status is "For Interview"
 $sql = "SELECT ja.id, ja.first_name, ja.last_name, ja.status, ja.email, 
                COALESCE(i.interview_date, 'Not Scheduled') AS interview_date, 
                COALESCE(i.interview_time, 'Not Scheduled') AS interview_time,
@@ -21,8 +21,8 @@ $sql = "SELECT ja.id, ja.first_name, ja.last_name, ja.status, ja.email,
                COALESCE(i.result, 'Pending') AS interview_result
         FROM job_applications ja
         LEFT JOIN interviews i ON ja.id = i.application_id
-        WHERE ja.status IN ('Initial Interview', 'Final Interview')";
-        
+        WHERE ja.status IN ('For Interview')";  // ✅ Updated Status Filtering
+
 // Apply filtering if a result filter is set
 if (isset($_GET['filter_result']) && in_array($_GET['filter_result'], ['Passed', 'Failed', 'Pending'])) {
     $filter = $_GET['filter_result'];
@@ -34,13 +34,14 @@ $sql .= " ORDER BY ja.applied_at ASC";
 $result = mysqli_query($conn, $sql);
 
 // Fetch unique statuses for filtering
-$statusQuery = "SELECT DISTINCT status FROM job_applications WHERE status IN ('Initial Interview', 'Final Interview')";
+$statusQuery = "SELECT DISTINCT status FROM job_applications WHERE status IN ('Pending', 'For Interview', 'Rejected')"; // ✅ Updated to reflect new statuses
 $statusResult = mysqli_query($conn, $statusQuery);
 $statuses = [];
 while ($row = mysqli_fetch_assoc($statusResult)) {
     $statuses[] = $row['status'];
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

@@ -17,7 +17,11 @@ if ($userRole !== 'Manager' && $userRole !== 'Admin') {
 }
 
 // Fetch job applications
-$sql = "SELECT id, first_name, last_name, status FROM job_applications ORDER BY applied_at ASC";
+$sql = "SELECT ja.id, ja.first_name, ja.last_name, ja.applied_at, ja.status, jl.job_title 
+        FROM job_applications ja
+        LEFT JOIN job_listings jl ON ja.job_id = jl.id
+        ORDER BY ja.applied_at ASC";
+
 
 $result = mysqli_query($conn, $sql);
 ?>
@@ -30,7 +34,7 @@ $result = mysqli_query($conn, $sql);
     <title>Applications</title>
 </head>
 <body>
-<?php include('../includes/loader.php') ?>
+<?php include('../includes/loader.php'); ?>
 
 <div id="pcoded" class="pcoded">
     <div class="pcoded-container navbar-wrapper">
@@ -47,8 +51,7 @@ $result = mysqli_query($conn, $sql);
                                     <div class="row align-items-end">
                                         <div class="col-lg-8">
                                             <div class="page-header-title">
-                                                <h4>Job Applications</h4>
-                                            
+                                                <h4>Job Applications Screening</h4>
                                             </div>
                                         </div>
                                     </div>
@@ -56,12 +59,29 @@ $result = mysqli_query($conn, $sql);
 
                                 <div class="page-body">
                                     <div class="card">
-                                        <div class="card-header">
                                         <div class="card-header d-flex justify-content-between align-items-center">
                                             <h5>List of Applicants</h5>
-                                            <input type="text" id="applicantSearch" class="form-control w-25" placeholder="Search Applicant...">
                                         </div>
                                         <div class="card-body">
+                                            <div class="d-flex mb-3">
+                                                <select id="jobFilter" class="form-control w-25 me-2" onchange="filterApplications()">
+                                                    <option value="">All Jobs</option>
+                                                    <?php
+                                                    $jobQuery = "SELECT DISTINCT job_title FROM job_listings";
+                                                    $jobResult = mysqli_query($conn, $jobQuery);
+                                                    while ($jobRow = mysqli_fetch_assoc($jobResult)) {
+                                                        echo "<option value='" . htmlspecialchars($jobRow['job_title']) . "'>" . htmlspecialchars($jobRow['job_title']) . "</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                                <select id="statusFilter" class="form-control w-25" onchange="filterApplications()">
+                                                    <option value="">All Statuses</option>
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="For Interview">For Interview</option>
+                                                    <option value="">Rejected</option>
+                                                </select>
+                                            </div>
+
                                             <div class="table-responsive">
                                                 <table class="table table-striped">
                                                     <thead class="table-dark">
@@ -69,20 +89,26 @@ $result = mysqli_query($conn, $sql);
                                                             <th>#</th>
                                                             <th>Applicant ID</th>
                                                             <th>Name</th>
+                                                            <th>Applied Job</th>
                                                             <th>Status</th>
+                                                            <th>Applied Date</th>
                                                             <th>Actions</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
+                                                    <tbody id="applicantTable">
                                                         <?php
                                                         if (mysqli_num_rows($result) > 0) {
                                                             $count = 1;
                                                             while ($row = mysqli_fetch_assoc($result)) {
-                                                                echo "<tr id='row-{$row['id']}'>
+                                                                echo "<tr class='applicant-row' 
+                                                                    data-job='" . htmlspecialchars($row['job_title'] ?? 'N/A') . "' 
+                                                                    data-status='" . htmlspecialchars($row['status']) . "'>
                                                                     <td>{$count}</td>
                                                                     <td>{$row['id']}</td>
-                                                                    <td>" . htmlspecialchars($row['first_name']) . "</td>
+                                                                    <td>" . htmlspecialchars($row['first_name'] . ' ' . $row['last_name']) . "</td>
+                                                                    <td>" . htmlspecialchars($row['job_title'] ?? 'N/A') . "</td>
                                                                     <td id='status-{$row['id']}'>" . htmlspecialchars($row['status']) . "</td>
+                                                                    <td>" . date("F j, Y, g:i a", strtotime($row['applied_at'])) . "</td>
                                                                     <td>
                                                                         <button class='btn btn-info btn-sm view-btn' data-id='{$row['id']}'>View</button>
                                                                         <button class='btn btn-warning btn-sm edit-btn' data-id='{$row['id']}'>Edit</button>
@@ -92,11 +118,12 @@ $result = mysqli_query($conn, $sql);
                                                                 $count++;
                                                             }
                                                         } else {
-                                                            echo "<tr><td colspan='5' class='text-center text-muted'>No applications found</td></tr>";
+                                                            echo "<tr><td colspan='7' class='text-center text-muted'>No applications found</td></tr>";
                                                         }
                                                         ?>
                                                     </tbody>
                                                 </table>
+
                                             </div>
                                         </div>
                                     </div>
@@ -116,53 +143,58 @@ $result = mysqli_query($conn, $sql);
                                         </div>
                                     </div>
 
-                                    <!-- Edit Status Modal -->
-                                    <div class="modal fade" id="editModal" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Edit Applicant Status</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <input type="hidden" id="editApplicantId">
-                                                    <select id="statusSelect" class="form-select">
-                                                        <option value="Pending">Pending</option>
-                                                        <option value="Initial Interview">Initial Interview</option>
-                                                        <option value="Final Interview">Final Interview</option>
-                                                        <option value="Pass">Pass</option>
-                                                        <option value="Fail">Fail</option>
-                                                    </select>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-success" id="saveStatusBtn">Save</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                 <!-- Edit Status Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Applicant Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editApplicantId">
+                <select id="statusSelect" class="form-select">
+                    <option value="Pending">Pending</option>
+                    <option value="For Interview">For Interview</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="saveStatusBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
                                     <?php include('../includes/scripts.php'); ?>
 
 
+
+
                                     <script>
-document.getElementById("applicantSearch").addEventListener("keyup", function () {
-    let filter = this.value.toLowerCase();
-    let rows = document.querySelectorAll("tbody tr"); // Select all table rows inside <tbody>
+    function filterApplications() {
+        let jobFilter = document.getElementById("jobFilter").value.toLowerCase();
+        let statusFilter = document.getElementById("statusFilter").value.toLowerCase();
+        let rows = document.querySelectorAll(".applicant-row");
 
-    rows.forEach(row => {
-        let applicantID = row.cells[1].textContent.toLowerCase(); // Get Applicant ID
-        let applicantName = row.cells[2].textContent.toLowerCase(); // Get Name
+        rows.forEach(row => {
+            let jobTitle = row.getAttribute("data-job").toLowerCase();
+            let status = row.getAttribute("data-status").toLowerCase();
 
-        // Show row if the search term matches ID or Name
-        if (applicantID.includes(filter) || applicantName.includes(filter)) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-    });
-});
-
+            if (
+                (jobFilter === "" || jobTitle.includes(jobFilter)) &&
+                (statusFilter === "" || status.includes(statusFilter))
+            ) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
 </script>
+
+
                                     <script>
                             
                             document.addEventListener("DOMContentLoaded", function () {
