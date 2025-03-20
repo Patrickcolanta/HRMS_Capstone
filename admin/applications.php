@@ -9,22 +9,27 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
     exit();
 }
 
-// Check if the user has the role of Manager or Admin
-$userRole = $_SESSION['srole'];
-if ($userRole !== 'Manager' && $userRole !== 'Admin') {
-    header('Location: ../index.php');
+// Allow only Admin, Manager, or HR employees
+if ($_SESSION['srole'] !== 'Admin' && $_SESSION['srole'] !== 'Manager' && $_SESSION['sdepartment'] !== 'Human Resources') {
+    header("Location: index.php");
     exit();
 }
 
-// Fetch job applications
-$sql = "SELECT ja.id, ja.first_name, ja.last_name, ja.applied_at, ja.status, jl.job_title 
+// Fetch job applications with hiring_status
+$sql = "SELECT ja.id, 
+               ja.first_name, 
+               ja.last_name, 
+               ja.applied_at, 
+               ja.status, 
+               ja.hiring_status,  -- Added hiring_status
+               jl.job_title 
         FROM job_applications ja
         LEFT JOIN job_listings jl ON ja.job_id = jl.id
         ORDER BY ja.applied_at ASC";
 
-
 $result = mysqli_query($conn, $sql);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -92,6 +97,7 @@ $result = mysqli_query($conn, $sql);
                                                             <th>Applied Job</th>
                                                             <th>Status</th>
                                                             <th>Applied Date</th>
+                                                            <th>Hiring Status</th>
                                                             <th>Actions</th>
                                                         </tr>
                                                     </thead>
@@ -109,6 +115,7 @@ $result = mysqli_query($conn, $sql);
                                                                     <td>" . htmlspecialchars($row['job_title'] ?? 'N/A') . "</td>
                                                                     <td id='status-{$row['id']}'>" . htmlspecialchars($row['status']) . "</td>
                                                                     <td>" . date("F j, Y, g:i a", strtotime($row['applied_at'])) . "</td>
+                                                                    <td>" . htmlspecialchars($row['hiring_status'] ?? 'Pending') . "</td>
                                                                     <td>
                                                                         <button class='btn btn-info btn-sm view-btn' data-id='{$row['id']}'>View</button>
                                                                         <button class='btn btn-warning btn-sm edit-btn' data-id='{$row['id']}'>Edit</button>

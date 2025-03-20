@@ -23,7 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify OTP
     if ($entered_otp == $_SESSION['otp']) {
         // Fetch user details from database
-        $stmt = $conn->prepare("SELECT * FROM tblemployees WHERE email_id = ?");
+        $stmt = $conn->prepare("
+        SELECT e.*, d.department_name
+        FROM tblemployees e
+        JOIN tbldepartments d ON d.id = e.department
+        WHERE email_id = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -47,6 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['is_supervisor'] = $user['is_supervisor'];
             $_SESSION['simageurl'] = $user['image_path'];
             $_SESSION['last_activity'] = time();
+            $_SESSION['department_name'] = $user['department_name']; 
+
 
             // Set redirection based on role
             $redirect_url = "index.php"; // Default redirection

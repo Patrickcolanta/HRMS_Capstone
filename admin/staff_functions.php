@@ -64,44 +64,43 @@ function updateStaffRecords($edit_id, $firstname, $lastname, $middlename, $conta
     } else {
         $image_target_path = ''; // Empty image path
     }
+// Check if the password is empty
+if (empty($password)) {
+    $password_param = ''; // Empty password
+} else {
+    $password_param = password_hash($password, PASSWORD_DEFAULT);
+}
 
-    // Check if the password is empty
-    if (empty($password)) {
-        $password_param = ''; // Empty password
-    } else {
-        $password_param = md5($password);
-    }
+// Construct the SQL query based on the presence of image and password
+if (empty($image_target_path) && empty($password_param)) {
+    // Both image and password are empty
+    $stmt = mysqli_prepare($conn, "UPDATE tblemployees SET department=?, first_name=?, last_name=?, middle_name=?, phone_number=?, designation=?, email_id=?, gender=?, role=?, staff_id=?, is_supervisor=? WHERE emp_id=?");
+    mysqli_stmt_bind_param($stmt, 'isssssssssii', $department, $firstname, $lastname, $middlename, $contact, $designation, $email, $gender, $role, $staff_id, $is_supervisor, $edit_id);
+} elseif (empty($image_target_path)) {
+    // Only image is empty
+    $stmt = mysqli_prepare($conn, "UPDATE tblemployees SET department=?, first_name=?, last_name=?, middle_name=?, phone_number=?, designation=?, email_id=?, password=?, gender=?, role=?, staff_id=?, is_supervisor=? WHERE emp_id=?");
+    mysqli_stmt_bind_param($stmt, 'issssssssssii', $department, $firstname, $lastname, $middlename, $contact, $designation, $email, $password_param, $gender, $role, $staff_id, $is_supervisor, $edit_id);
+} elseif (empty($password_param)) {
+    // Only password is empty
+    $stmt = mysqli_prepare($conn, "UPDATE tblemployees SET department=?, first_name=?, last_name=?, middle_name=?, phone_number=?, designation=?, email_id=?, gender=?, role=?, image_path=?, staff_id=?, is_supervisor=? WHERE emp_id=?");
+    mysqli_stmt_bind_param($stmt, 'issssssssssii', $department, $firstname, $lastname, $middlename, $contact, $designation, $email, $gender, $role, $image_target_path, $staff_id, $is_supervisor, $edit_id);
+} else {
+    // Both image and password are provided
+    $stmt = mysqli_prepare($conn, "UPDATE tblemployees SET department=?, first_name=?, last_name=?, middle_name=?, phone_number=?, designation=?, email_id=?, password=?, gender=?, role=?, image_path=?, staff_id=?, is_supervisor=? WHERE emp_id=?");
+    mysqli_stmt_bind_param($stmt, 'isssssssssssii', $department, $firstname, $lastname, $middlename, $contact, $designation, $email, $password_param, $gender, $role, $image_target_path, $staff_id, $is_supervisor, $edit_id);
+}
 
-    // Construct the SQL query based on the presence of image and password
-    if (empty($image_target_path) && empty($password_param)) {
-        // Both image and password are empty
-        $stmt = mysqli_prepare($conn, "UPDATE tblemployees SET department=?, first_name=?, last_name=?, middle_name=?, phone_number=?, designation=?, email_id=?, gender=?, role=?, staff_id=?, is_supervisor=? WHERE emp_id=?");
-        mysqli_stmt_bind_param($stmt, 'isssssssssii', $department, $firstname, $lastname, $middlename, $contact, $designation, $email, $gender, $role, $staff_id, $is_supervisor, $edit_id);
-    } elseif (empty($image_target_path)) {
-        // Only image is empty
-        $stmt = mysqli_prepare($conn, "UPDATE tblemployees SET department=?, first_name=?, last_name=?, middle_name=?, phone_number=?, designation=?, email_id=?, password=?, gender=?, role=?, staff_id=?, is_supervisor=? WHERE emp_id=?");
-        mysqli_stmt_bind_param($stmt, 'issssssssssii', $department, $firstname, $lastname, $middlename, $contact, $designation, $email, $password_param, $gender, $role, $staff_id, $is_supervisor, $edit_id);
-    } elseif (empty($password_param)) {
-        // Only password is empty
-        $stmt = mysqli_prepare($conn, "UPDATE tblemployees SET department=?, first_name=?, last_name=?, middle_name=?, phone_number=?, designation=?, email_id=?, gender=?, role=?, image_path=?, staff_id=?, is_supervisor=? WHERE emp_id=?");
-        mysqli_stmt_bind_param($stmt, 'issssssssssii', $department, $firstname, $lastname, $middlename, $contact, $designation, $email, $gender, $role, $image_target_path, $staff_id, $is_supervisor, $edit_id);
-    } else {
-        // Both image and password are provided
-        $stmt = mysqli_prepare($conn, "UPDATE tblemployees SET department=?, first_name=?, last_name=?, middle_name=?, phone_number=?, designation=?, email_id=?, password=?, gender=?, role=?, image_path=?, staff_id=?, is_supervisor=? WHERE emp_id=?");
-        mysqli_stmt_bind_param($stmt, 'isssssssssssii', $department, $firstname, $lastname, $middlename, $contact, $designation, $email, $password_param, $gender, $role, $image_target_path, $staff_id, $is_supervisor, $edit_id);
-    }
+$result = mysqli_stmt_execute($stmt);
 
-    $result = mysqli_stmt_execute($stmt);
-
-    if ($result) {
-        $response = array('status' => 'success', 'message' => 'Staff member updated successfully');
-        echo json_encode($response);
-        exit;
-    } else {
-        $response = array('status' => 'error', 'message' => 'Failed to update staff member');
-        echo json_encode($response);
-        exit;
-    }
+if ($result) {
+    $response = array('status' => 'success', 'message' => 'Staff member updated successfully');
+    echo json_encode($response);
+    exit;
+} else {
+    $response = array('status' => 'error', 'message' => 'Failed to update staff member');
+    echo json_encode($response);
+    exit;
+}
 }
 
 function addStaffRecord($firstname, $lastname, $middlename, $contact, $designation, $department, $email, $password, $role, $is_supervisor, $staff_id, $gender, $image_path) {

@@ -3,6 +3,9 @@ session_start();
 include('../includes/config.php'); // Database connection
 
 header('Content-Type: application/json');
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require '../vendor/autoload.php'; // Ensure PHPMailer is installed via Composer
 
 // Ensure only authorized users (Admin/Manager) can access
 if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole']) || ($_SESSION['srole'] !== 'Manager' && $_SESSION['srole'] !== 'Admin')) {
@@ -24,6 +27,22 @@ if ($requestMode === "schedule" || $requestMode === "edit") {
         echo json_encode(["status" => "error", "message" => "Missing required fields"]);
         exit();
     }
+
+    // Fetch applicant's email
+    $applicantStmt = $conn->prepare("SELECT first_name, last_name, email FROM job_applications WHERE id = ?");
+    $applicantStmt->bind_param("i", $applicationId);
+    $applicantStmt->execute();
+    $applicantResult = $applicantStmt->get_result();
+    $applicant = $applicantResult->fetch_assoc();
+    $applicantStmt->close();
+
+    if (!$applicant) {
+        echo json_encode(["status" => "error", "message" => "Applicant not found."]);
+        exit();
+    }
+
+    $fullName = $applicant['first_name'] . ' ' . $applicant['last_name'];
+    $toEmail = $applicant['email'];
 
     // Check if an interview already exists
     $checkStmt = $conn->prepare("SELECT COUNT(*) as total FROM interviews WHERE application_id = ?");
@@ -47,13 +66,53 @@ if ($requestMode === "schedule" || $requestMode === "edit") {
     }
 
     if ($stmt->execute()) {
-        echo json_encode(["status" => "success", "message" => "Interview successfully " . ($requestMode === "schedule" ? "scheduled" : "updated")]);
+        // Send email notification via PHPMailer
+        $mail = new PHPMailer(true);
+
+        try {
+            
+            // SMTP Configuration
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com'; // SMTP server
+            $mail->SMTPAuth = true;
+            $mail->Username = 'colantapatrick0@gmail.com'; // Your email
+            $mail->Password = 'njst eqde sygo hxkz'; // Your App Password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Secure connection
+            $mail->Port = 587;
+
+            // Sender and recipient
+            $mail->setFrom('colantapatrick0@gmail.com', 'HRMS System');
+            $mail->addAddress($toEmail);
+
+            // Email Content
+            $mail->isHTML(true);
+            $mail->Subject = "Interview Schedule Notification";
+            $mail->Body    = "
+                <h3>Dear $fullName,</h3>
+                <p>We are pleased to inform you that your interview has been scheduled.</p>
+                <ul>
+                    <li><strong>Date:</strong> $date</li>
+                    <li><strong>Time:</strong> $time</li>
+                    <li><strong>Mode:</strong> $interviewMode</li>
+                    <li><strong>Location:</strong> $location</li>
+                    <li><strong>Interviewer:</strong> $interviewer</li>
+                </ul>
+                <p>Kindly confirm your availability.</p>
+                <p>Best Regards,</p>
+                <p><strong>HR Department</strong></p>
+            ";
+
+            // Send the email
+            $mail->send();
+            echo json_encode(["status" => "success", "message" => "Interview successfully " . ($requestMode === "schedule" ? "scheduled" : "updated") . " and email notification sent"]);
+        } catch (Exception $e) {
+            echo json_encode(["status" => "error", "message" => "Interview scheduled, but email notification failed. " . $mail->ErrorInfo]);
+        }
     } else {
-        error_log("Database Error: " . $stmt->error);
         echo json_encode(["status" => "error", "message" => "Database error occurred. Please try again."]);
     }
-    $stmt->close();
 
+    $stmt->close();
 } elseif ($requestMode === "update_result") { // Updating interview result and status
     $applicationId = $_POST['application_id'] ?? '';
     $result = $_POST['interview_result'] ?? '';

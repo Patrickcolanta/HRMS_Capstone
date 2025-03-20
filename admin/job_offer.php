@@ -6,22 +6,25 @@ include('../includes/config.php'); // Database connection
 // Regenerate session ID for security
 session_regenerate_id(true);
 
-// Check if the user is logged in and has the required role
-if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole']) || !in_array($_SESSION['srole'], ['Manager', 'Admin'])) {
-    header('Location: ../index.php');
+// Allow only Admin, Manager, or HR employees
+if ($_SESSION['srole'] !== 'Admin' && $_SESSION['srole'] !== 'Manager' && $_SESSION['sdepartment'] !== 'Human Resources') {
+    header("Location: index.php");
     exit();
 }
 
-// Fetch only applicants who have "Passed" the interview and include required fields
+// Fetch only applicants who have "Completed" the interview and have "Passed" the result
 $sql = "SELECT ja.id, 
                CONCAT(ja.first_name, ' ', ja.last_name) AS applicant_name, 
                ja.email, 
                ja.phone, 
-               jo.status, 
-               jo.offer_sent,  -- Fetch offer_sent status
-               jo.message      -- Fetch message content
+               IFNULL(jo.status, 'Not Endorsed') AS status, 
+               IFNULL(jo.offer_sent, 0) AS offer_sent, 
+               IFNULL(jo.message, 'No message') AS message
         FROM job_applications ja
         LEFT JOIN job_offers jo ON ja.id = jo.application_id
+        LEFT JOIN interviews i ON ja.id = i.application_id
+        WHERE i.status = 'Completed' 
+              AND i.result = 'Passed'
         ORDER BY jo.status DESC";
 
 $result = mysqli_query($conn, $sql);
@@ -30,6 +33,7 @@ if (!$result) {
 }
 
 ?>
+
 
 
 
@@ -163,99 +167,96 @@ if (!$result) {
 </div>
 
 <!-- Update Status Modal -->
-<div class="modal fade" id="statusModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Update Job Offer Status</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="statusForm">
-                    <input type="hidden" id="status_application_id" name="application_id">
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select id="job_offer_status" name="status" class="form-control" required>
-                            <option value="Accepted">Accepted</option>
-                            <option value="Rejected">Rejected</option>
-                        </select>
+                    <div class="modal fade" id="statusModal" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Update Job Offer Status</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="statusForm">
+                                        <input type="hidden" id="status_application_id" name="application_id">
+                                        <div class="mb-3">
+                                            <label class="form-label">Status</label>
+                                            <select id="job_offer_status" name="status" class="form-control" required>
+                                                <option value="Accepted">Accepted</option>
+                                                <option value="Rejected">Rejected</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">Update</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-success">Update</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const emailModal = new bootstrap.Modal(document.getElementById("emailModal"));
-    const statusModal = new bootstrap.Modal(document.getElementById("statusModal"));
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const emailModal = new bootstrap.Modal(document.getElementById("emailModal"));
+                        const statusModal = new bootstrap.Modal(document.getElementById("statusModal"));
 
-    document.addEventListener("click", function (event) {
-        if (event.target.classList.contains("send-email-btn")) {
-            openEmailModal(event.target);
-        } else if (event.target.classList.contains("update-status-btn")) {
-            openStatusModal(event.target);
-        }
-    });
+                        document.addEventListener("click", function (event) {
+                            if (event.target.classList.contains("send-email-btn")) {
+                                openEmailModal(event.target);
+                            } else if (event.target.classList.contains("update-status-btn")) {
+                                openStatusModal(event.target);
+                            }
+                        });
 
-    function openEmailModal(button) {
-    document.getElementById("email_application_id").value = button.dataset.id;
-    document.getElementById("recipient_email").value = button.dataset.email;
-    document.getElementById("email_message").value = button.dataset.message || ""; // Pre-fill message
-    emailModal.show();
-}
+                        function openEmailModal(button) {
+                        document.getElementById("email_application_id").value = button.dataset.id;
+                        document.getElementById("recipient_email").value = button.dataset.email;
+                        document.getElementById("email_message").value = button.dataset.message || ""; // Pre-fill message
+                        emailModal.show();
+                    }
 
 
-    function openStatusModal(button) {
-        document.getElementById("status_application_id").value = button.dataset.id;
-        document.getElementById("job_offer_status").value = button.dataset.status;
-        statusModal.show();
-    }
+                        function openStatusModal(button) {
+                            document.getElementById("status_application_id").value = button.dataset.id;
+                            document.getElementById("job_offer_status").value = button.dataset.status;
+                            statusModal.show();
+                        }
 
-    function handleFormSubmit(form, mode, modalId) {
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        
-        let formData = new FormData(form);
-        formData.append("mode", mode);
+                        function handleFormSubmit(form, mode, modalId) {
+                            form.addEventListener("submit", function (e) {
+                                e.preventDefault();
+                                
+                                let formData = new FormData(form);
+                                formData.append("mode", mode);
 
-        fetch("manage_job_offer.php", {
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "success") {
-                const modalElement = document.getElementById(modalId);
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                                fetch("manage_job_offer.php", {
+                                    method: "POST",
+                                    body: formData
+                                })
+                                .then(response => response.text())  // Read response as text first
+                                .then(text => {
+                                    console.log("Raw response:", text); // Debugging
+                                    try {
+                                        let data = JSON.parse(text); // Parse JSON
+                                        if (data.status === "success") {
+                                            Swal.fire("Success!", data.message, "success").then(() => location.reload());
+                                        } else {
+                                            Swal.fire("Error!", data.message, "error");
+                                        }
+                                    } catch (e) {
+                                        console.error("JSON Parsing Error:", e, text);
+                                        Swal.fire("Error!", "Invalid response from server", "error");
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error("Request failed:", error);
+                                    Swal.fire("Error!", "An unexpected error occurred.", "error");
+                                });
 
-                if (modalInstance) {
-                    document.activeElement.blur();  // Move focus away from button
-                    modalInstance.hide();  // Hide modal
-                }
-
-                setTimeout(() => {
-                    Swal.fire("Success!", data.message, "success");
-                    setTimeout(() => location.reload(), 1500);
-                }, 500);
-            } else {
-                Swal.fire("Error!", data.message, "error");
-            }
-        })
-        .catch(error => {
-            console.error("Request failed:", error);
-            Swal.fire("Error!", "An unexpected error occurred.", "error");
-        });
-    });
-}
+                            });
+                        }
 
 
-    handleFormSubmit(document.getElementById("emailForm"), "send_email", "emailModal");
-    handleFormSubmit(document.getElementById("statusForm"), "update_status", "statusModal");
-});
-</script>
+                            handleFormSubmit(document.getElementById("emailForm"), "send_email", "emailModal");
+                            handleFormSubmit(document.getElementById("statusForm"), "update_status", "statusModal");
+                        });
+                        </script>
 
 
                             </div>

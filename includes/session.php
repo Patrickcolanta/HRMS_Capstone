@@ -41,4 +41,5 @@ $session_sstaff_id = $_SESSION['sstaff_id'] ?? null;
 $session_image = $_SESSION['simageurl'] ?? null;
 $session_depart = $_SESSION['department'] ?? null;
 $session_supervisor = $_SESSION['is_supervisor'] ?? null;
+$session_department = $_SESSION['department_name'] ?? null;
 ?>

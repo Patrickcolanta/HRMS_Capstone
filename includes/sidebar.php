@@ -1,6 +1,8 @@
+
+
 <nav class="pcoded-navbar">
     <div class="pcoded-inner-navbar main-menu">
-        <?php if ($session_role == 'Manager'  || $session_role == 'Admin') : ?>
+        <?php if ($session_role == 'Manager'  || $session_role == 'Admin' || $session_department == 'Human Resources') : ?>
             <div class="pcoded-navigatio-lavel">Navigation</div>
             <ul class="pcoded-item pcoded-left-item">
                 <li class="<?php echo ($page_name == 'dashboard') ? 'active' : ''; ?>">
@@ -69,12 +71,14 @@
                             
                         <?php endif; ?>
                     </ul>
+                    <?php if ( $session_role == 'Admin') : ?>
                     <li class="<?php echo ($page_name == 'audit_logs') ? 'active' : ''; ?>">
                     <a href="audit_logs.php">
                         <span class="pcoded-micon"><i class="feather icon-file-text"></i></span>
                         <span class="pcoded-mtext">Audit Logs</span>
                     </a>
                 </li>
+                <?php endif; ?>
                 </li>
                 <li class="pcoded-hasmenu <?php echo ($page_name == 'task' || $page_name == 'new_task' || $page_name == 'task_list') ? 'active pcoded-trigger' : ''; ?>">
                     <a href="javascript:void(0)">
@@ -94,37 +98,39 @@
                         </li>
                     </ul>
                 </li>
-    <!-- Recruitment Management Feature -->
-<li class="pcoded-hasmenu <?php echo ($page_name == 'recruitment' || $page_name == 'job_listings' || $page_name == 'applications' || $page_name == 'job_offer' || $page_name == 'schedule_interview') ? 'active pcoded-trigger' : ''; ?>">
-    <a href="javascript:void(0)">
-        <span class="pcoded-micon"><i class="feather icon-briefcase"></i></span>
-        <span class="pcoded-mtext">Recruitment</span>
-    </a>
-    <ul class="pcoded-submenu">
-        <li class="<?php echo ($page_name == 'job_listings') ? 'active' : ''; ?>">
-            <a href="job_listings.php">
-                <span class="pcoded-mtext">Job Listings</span>
-            </a>
-        </li>
-        <li class="<?php echo ($page_name == 'applications') ? 'active' : ''; ?>">
-            <a href="applications.php">
-                <span class="pcoded-mtext">Applications</span>
-            </a>
-        </li>
-        <li class="<?php echo ($page_name == 'schedule_interview') ? 'active' : ''; ?>">
-            <a href="schedule_interview.php">
-                <span class="pcoded-mtext">Schedule Interview</span>
-            </a>
-        </li>
-        <li class="<?php echo ($page_name == 'job_offer') ? 'active' : ''; ?>">
-            <a href="job_offer.php">
-                <span class="pcoded-mtext">Job Offer and Onboarding</span>
-            </a>
-        </li>
-        
+                
+                    <!-- Recruitment Management Feature -->
+                <?php if ($session_department == 'Human Resources') : ?>
+                <li class="pcoded-hasmenu <?php echo ($page_name == 'recruitment' || $page_name == 'job_listings' || $page_name == 'applications' || $page_name == 'job_offer' || $page_name == 'schedule_interview') ? 'active pcoded-trigger' : ''; ?>">
+                    <a href="javascript:void(0)">
+                        <span class="pcoded-micon"><i class="feather icon-briefcase"></i></span>
+                        <span class="pcoded-mtext">Recruitment</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        <li class="<?php echo ($page_name == 'job_listings') ? 'active' : ''; ?>">
+                            <a href="job_listings.php">
+                                <span class="pcoded-mtext">Job Listings</span>
+                            </a>
+                        </li>
+                        <li class="<?php echo ($page_name == 'applications') ? 'active' : ''; ?>">
+                            <a href="applications.php">
+                                <span class="pcoded-mtext">Applications</span>
+                            </a>
+                        </li>
+                        <li class="<?php echo ($page_name == 'schedule_interview') ? 'active' : ''; ?>">
+                            <a href="schedule_interview.php">
+                                <span class="pcoded-mtext">Schedule Interview</span>
+                            </a>
+                        </li>
+                        <li class="<?php echo ($page_name == 'job_offer') ? 'active' : ''; ?>">
+                            <a href="job_offer.php">
+                                <span class="pcoded-mtext">Job Offer and Onboarding</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <?php endif; ?>
 
-            
-        </ul>
    
                 <li class="pcoded-hasmenu <?php echo ($page_name == 'attendance' || $page_name == 'my_attendance') ? 'active pcoded-trigger' : ''; ?>">
                     <a href="javascript:void(0)">
@@ -145,20 +151,25 @@
                     </ul>
                 </li>
             </ul>
+            <?php endif; ?>   
 
-            <div class="pcoded-navigatio-lavel">Reports</div>
-<ul class="pcoded-item pcoded-left-item">
-    <li class="<?php echo ($page_name == 'analytics') ? 'active' : ''; ?>">
-        <a href="analytics.php">
-            <span class="pcoded-micon"><i class="feather icon-bar-chart-2"></i></span>
-            <span class="pcoded-mtext">Analytics</span>
-        </a>
-    </li>
-</ul>
+
+        <?php if ($session_role == 'Admin') : ?>
+        <div class="pcoded-navigatio-lavel">Reports</div>
+            <ul class="pcoded-item pcoded-left-item">
+                <li class="<?php echo ($page_name == 'analytics') ? 'active' : ''; ?>">
+                    <a href="analytics.php">
+                        <span class="pcoded-micon"><i class="feather icon-bar-chart-2"></i></span>
+                        <span class="pcoded-mtext">Analytics</span>
+                    </a>
+                </li>
+        </ul>
+        <?php endif; ?>   
+
 
 
             
-        <?php endif; ?>   
+       
         <?php if ($session_role == 'Staff') : ?>
             <div class="pcoded-navigatio-lavel">Navigation</div>
             <ul class="pcoded-item pcoded-left-item">
