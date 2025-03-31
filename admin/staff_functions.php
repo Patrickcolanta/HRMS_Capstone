@@ -436,8 +436,8 @@ if (empty($employeeData)) {
                             <div class="img-overlay img-radius">
                                 <span>
                                     <a href="staff_detailed.php?id=' . $employee['emp_id'] . '&view=2" class="btn btn-sm btn-primary" style="margin-top: 1px;" data-popup="lightbox"><i class="icofont icofont-eye-alt"></i></a>';
-                                     // Check if the user role is Admin or Manager and the employee's designation is not 'Administrator'
-                                    if ($userRole === 'Admin' || ($userRole === 'Manager' && $employee['designation'] !== 'Administrator')) {
+                                     // Check if the user role is Admin or HR and the employee's designation is not 'Administrator'
+                                    if ($userRole === 'Admin' || ($userRole === 'HR' && $employee['designation'] !== 'Administrator')) {
                                         echo '<a href="new_staff.php?id=' . $employee['emp_id'] . '&edit=1" class="btn btn-sm btn-primary" data-popup="lightbox" style="margin-left: 8px; margin-top: 1px;"><i class="icofont icofont-edit"></i></a>';
                                         
                                         // Only show the delete icon if the employee's designation is not 'Administrator'

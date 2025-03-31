@@ -52,11 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['simageurl'] = $user['image_path'];
             $_SESSION['last_activity'] = time();
             $_SESSION['department_name'] = $user['department_name']; 
+            $_SESSION['staff_id'] = $user['staff_id'];
 
 
             // Set redirection based on role
             $redirect_url = "index.php"; // Default redirection
-            if ($role == 'Admin' || $role == 'Manager') {
+            if ($role == 'Admin' || $role == 'HR') {
                 $redirect_url = "admin/index.php";
             } elseif ($role == 'Staff') {
                 $redirect_url = "staff/index.php";

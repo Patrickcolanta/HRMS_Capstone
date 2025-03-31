@@ -9,7 +9,7 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
 }
 
 // Allow only Admin, Manager, or HR employees
-if ($_SESSION['srole'] !== 'Admin' && $_SESSION['srole'] !== 'Manager' && $_SESSION['sdepartment'] !== 'Human Resources') {
+if ($_SESSION['srole'] !== 'Admin' && $_SESSION['srole'] !== 'HR' && $_SESSION['sdepartment'] !== 'Human Resources') {
     header("Location: index.php");
     exit();
 }

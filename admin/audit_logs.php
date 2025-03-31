@@ -10,7 +10,7 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
 
 $userRole = $_SESSION['srole'];
 
-if ($userRole !== 'Manager' && $userRole !== 'Admin') {
+if ($userRole !== 'HR' && $userRole !== 'Admin') {
     header('Location: ../index.php');
     exit();
 }

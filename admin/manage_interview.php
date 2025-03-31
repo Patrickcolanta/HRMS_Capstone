@@ -8,7 +8,7 @@ use PHPMailer\PHPMailer\Exception;
 require '../vendor/autoload.php'; // Ensure PHPMailer is installed via Composer
 
 // Ensure only authorized users (Admin/Manager) can access
-if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole']) || ($_SESSION['srole'] !== 'Manager' && $_SESSION['srole'] !== 'Admin')) {
+if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole']) || ($_SESSION['srole'] !== 'HR' && $_SESSION['srole'] !== 'Admin')) {
     echo json_encode(["status" => "error", "message" => "Unauthorized access"]);
     exit();
 }

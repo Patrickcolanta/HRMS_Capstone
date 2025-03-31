@@ -11,7 +11,7 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
 
 // Check if the user has the role of Manager or Admin
 $userRole = $_SESSION['srole'];
-if ($userRole !== 'Manager' && $userRole !== 'Admin') {
+if ($userRole !== 'HR' && $userRole !== 'Admin') {
     header('Location: ../index.php');
     exit();
 }

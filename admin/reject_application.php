@@ -20,7 +20,7 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
 
 // 🛑 Check if the user has Manager/Admin role
 $userRole = $_SESSION['srole'];
-if ($userRole !== 'Manager' && $userRole !== 'Admin') {
+if ($userRole !== 'HR' && $userRole !== 'Admin') {
     echo json_encode(["status" => "error", "message" => "Permission denied!"]);
     exit();
 }

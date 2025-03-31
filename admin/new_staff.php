@@ -6,9 +6,9 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
     exit();
 }
 
-// Check if the user has the role of Manager or Admin
+// Check if the user has the role of HR or Admin
 $userRole = $_SESSION['srole'];
-if ($userRole !== 'Manager' && $userRole !== 'Admin') {
+if ($userRole !== 'HR' && $userRole !== 'Admin') {
     header('Location: ../index.php');
     exit();
 }
@@ -261,8 +261,8 @@ if ($userRole !== 'Manager' && $userRole !== 'Admin') {
                                                                             </div>
                                                                             <div class="radio radiofill radio-inline">
                                                                                 <label>
-                                                                                    <input type="radio" name="role" value="Manager" <?php echo (isset($row['role']) && $row['role'] === 'Manager') ? 'checked="checked"' : ''; ?>>
-                                                                                    <i class="helper"></i>Manager
+                                                                                    <input type="radio" name="role" value="HR" <?php echo (isset($row['role']) && $row['role'] === 'HR') ? 'checked="checked"' : ''; ?>>
+                                                                                    <i class="helper"></i>HR
                                                                                 </label>
                                                                             </div>
                                                                             <?php if ($session_role == 'Admin'): ?>

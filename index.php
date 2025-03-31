@@ -193,8 +193,8 @@ session_destroy();
                         // Role-based welcome message
                         if (role === 'Admin') {
                             welcomeMessage = 'Welcome, Admin! Redirecting to the Admin Panel...';
-                        } else if (role === 'Manager') {
-                            welcomeMessage = 'Welcome, Manager! Accessing management dashboard...';
+                        } else if (role === 'HR') {
+                            welcomeMessage = 'Welcome, HR! Accessing management dashboard...';
                         } else if (role === 'Staff') {
                             welcomeMessage = 'Welcome, Staff! Redirecting to your workspace...';
                         } else {

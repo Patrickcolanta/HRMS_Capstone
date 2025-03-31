@@ -138,7 +138,7 @@
                                                     $assignedById = $row['assigned_by'];
 
                                                     // Determine if edit and remove options should be shown
-                                                    $showOptions = ($sessionRole === 'Admin') || ($sessionRole === 'Manager' && $sessionDepartmentId == $row['assigned_to_department_id']) || ($assignedById == $_SESSION['slogin']);
+                                                    $showOptions = ($sessionRole === 'Admin') || ($sessionRole === 'HR' && $sessionDepartmentId == $row['assigned_to_department_id']) || ($assignedById == $_SESSION['slogin']);
                                                     ?>
                                                     <?php if ($showOptions): ?>
                                                         <div class="card-footer">
@@ -166,7 +166,7 @@
                                                                 <button id="status-dropdown" class="btn btn-sm btn-primary dropdown-toggle waves-light" type="button" id="dropdown2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                                     <?php echo $row['status'] == "Pending" ? 'Pending' : ($row['status'] == "In Progress" ? 'In Progress' : ($row['status'] == "Completed" ? 'Completed' : 'Pending')); ?>
                                                                 </button>
-                                                                <?php if ($_SESSION['srole'] === 'Admin' || $_SESSION['srole'] === 'Manager' || $row['assigned_by'] == $_SESSION['slogin']): ?>
+                                                                <?php if ($_SESSION['srole'] === 'Admin' || $_SESSION['srole'] === 'HR' || $row['assigned_by'] == $_SESSION['slogin']): ?>
                                                                     <div class="dropdown-menu" aria-labelledby="dropdown2" data-dropdown-in="fadeIn" data-dropdown-out="fadeOut">
                                                                         <a class="dropdown-status dropdown-item waves-light waves-effect <?php echo $row['status'] == "Pending" ? 'active' : ''; ?>" href="#!" data-status="Pending" data-task-id="<?php echo $row['id']; ?>">Pending</a>
                                                                         <a class="dropdown-status dropdown-item waves-light waves-effect <?php echo $row['status'] == "In Progress" ? 'active' : ''; ?>" href="#!" data-status="In Progress" data-task-id="<?php echo $row['id']; ?>">In Progress</a>

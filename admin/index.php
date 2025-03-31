@@ -7,9 +7,10 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
     exit();
 }
 
-// Check if the user has the role of Manager or Admin
+// Check if the user has the role of HR or Admin
 $userRole = $_SESSION['srole'];
-if ($userRole !== 'Manager' && $userRole !== 'Admin') {
+
+if ($userRole !== 'HR' && $userRole !== 'Admin') {
     header('Location: ../index.php');
     exit();
 }
@@ -80,22 +81,22 @@ while ($departmentRow = $departmentResult->fetch_assoc()) {
 
     $totalStaff += $staffCount;
 
-    // Fetch the count of managers in the department
-    $managerQuery = $conn->prepare("SELECT COUNT(*) as manager_count FROM tblemployees WHERE department = ? AND role = 'Manager'");
-    $managerQuery->bind_param("i", $departmentId);
-    $managerQuery->execute();
-    $managerResult = $managerQuery->get_result();
-    $managerRow = $managerResult->fetch_assoc();
-    $managerCount = $managerRow['manager_count'];
+        // Fetch the count of HRs in the department
+        $hrQuery = $conn->prepare("SELECT COUNT(*) as hr_count FROM tblemployees WHERE department = ? AND role = 'HR'");
+        $hrQuery->bind_param("i", $departmentId);
+        $hrQuery->execute();
+        $hrResult = $hrQuery->get_result();
+        $hrRow = $hrResult->fetch_assoc();
+        $hrCount = $hrRow['hr_count'];
 
-    $departments[] = [
-        'id' => $departmentId,
-        'name' => $departmentName,
-        'desc' => $departmentDesc,
-        'staffCount' => $staffCount,
-        'managerCount' => $managerCount,
-    ];
-}
+        $departments[] = [
+            'id' => $departmentId,
+            'name' => $departmentName,
+            'desc' => $departmentDesc,
+            'staffCount' => $staffCount,
+            'hrCount' => $hrCount, // Updated key to reflect HR count
+        ];
+    }
 ?>
 
 
@@ -331,12 +332,13 @@ while ($departmentRow = $departmentResult->fetch_assoc()) {
                                                             <p class="text-muted">Total Staff</p>
                                                         </div>
                                                         <div class="design-description d-inline-block">
-                                                            <?php if ($department['managerCount'] > 0): ?>
-                                                                <h3 class="f-w-400"><?= $department['managerCount'] ?></h3>
-                                                            <?php else: ?>
-                                                                <h5>No</h5>
-                                                            <?php endif; ?>
-                                                            <p class="text-muted">Total Managers</p>
+                                                        <?php if ($department['hrCount'] > 0): ?>
+                                                        <h3 class="f-w-400"><?= $department['hrCount'] ?></h3>
+                                                    <?php else: ?>
+                                                        <h5>No</h5>
+                                                    <?php endif; ?>
+                                                    <p class="text-muted">Total HRs</p>
+
                                                         </div>
                                                         <div class="team-box p-b-20">
                                                             <p class="d-inline-block m-r-20 f-w-400">

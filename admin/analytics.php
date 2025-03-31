@@ -4,7 +4,7 @@ include('../includes/header.php');
 include('../includes/config.php'); // Database connection
 
 // Allow only Admin, Manager, or HR employees
-if ($_SESSION['srole'] !== 'Admin' && $_SESSION['srole'] !== 'Manager' && $_SESSION['sdepartment'] !== 'Human Resources') {
+if ($_SESSION['srole'] !== 'Admin' && $_SESSION['srole'] !== 'HR' && $_SESSION['sdepartment'] !== 'HR') {
     header("Location: index.php");
     exit();
 }

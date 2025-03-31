@@ -9,7 +9,7 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
 }
 
 // 🛑 Only Managers and Admins can approve/reject applications
-if ($_SESSION['srole'] !== 'Manager' && $_SESSION['srole'] !== 'Admin') {
+if ($_SESSION['srole'] !== 'HR' && $_SESSION['srole'] !== 'Admin') {
     die("Unauthorized access!");
 }
 
