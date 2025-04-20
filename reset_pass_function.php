@@ -19,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['token'], $_POST['new_p
     }
 
     // ✅ Validate password strength
-    if (strlen($new_password) < 8 || !preg_match('/[A-Z]/', $new_password) || !preg_match('/[0-9]/', $new_password) || !preg_match('/[@$!%*?&]/', $new_password)) {
-        echo json_encode(['status' => 'error', 'message' => 'Password must be at least 8 characters long, include a number, an uppercase letter, and a special character.']);
+    if (strlen($new_password) < 16 || !preg_match('/[A-Z]/', $new_password) || !preg_match('/[0-9]/', $new_password) || !preg_match('/[@$!%*?&]/', $new_password)) {
+        echo json_encode(['status' => 'error', 'message' => 'Password must be at least 16 characters long, include a number, an uppercase letter, and a special character.']);
         exit();
     }
 

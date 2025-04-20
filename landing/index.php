@@ -24,7 +24,7 @@ include('../admin/config.php'); // Database connection
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light" style="position: absolute; top: 0; left: 0; width: 100%; z-index: 1000;">
         <div class="container">
-            <a class="navbar-brand font-weight-bold" href="#">MySite</a>
+            <a class="navbar-brand font-weight-bold" href="#">Charlex Intl.</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -56,23 +56,26 @@ include('../admin/config.php'); // Database connection
 
 
 
-   
- 
-    <div class="position-relative h-50 text-white">
-        <!-- Image with Black Gradient Overlay -->
-        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark" style="opacity: 0.5;"></div>
+
+
+    <div class="position-relative text-white min-vh-100 d-flex align-items-center justify-content-center">
+        <!-- Dark Overlay -->
+        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark" style="opacity: 0.5; z-index: 1;"></div>
 
         <!-- Background Image -->
-        <img class="cover  w-100 rounded" src="https://images.pexels.com/photos/1134176/pexels-photo-1134176.jpeg?cs=srgb&dl=dug-out-pool-hotel-poolside-1134176.jpg&fm=jpg" alt="">
+        <img class="position-absolute top-0 start-0 w-100 h-100" style="object-fit: cover; z-index: 0;"
+            src="https://images.pexels.com/photos/1134176/pexels-photo-1134176.jpeg?cs=srgb&dl=dug-out-pool-hotel-poolside-1134176.jpg&fm=jpg"
+            alt="">
 
-        <div class="position-absolute top-50 start-50 translate-middle text-center">
+        <!-- Centered Content -->
+        <div class="text-center position-relative z-2">
             <h1 class="display-4 fw-bold">Find Your Dream Apartment & Career</h1>
             <p class="lead">Discover beautiful apartments for rent and exciting job opportunities all in one place.</p>
             <a href="#" class="btn btn-dark me-3">Browse Apartments</a>
             <a href="#" class="btn btn-outline-light">View Jobs</a>
         </div>
-
     </div>
+
 
     <div class="bg-light py-4">
         <div class="container">

@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($role == 'Admin' || $role == 'HR') {
                 $redirect_url = "admin/index.php";
             } elseif ($role == 'Staff') {
-                $redirect_url = "staff/index.php";
+                $redirect_url = "staff/my_attendance.php";
             }
 
             // Return response for JavaScript handling

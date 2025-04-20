@@ -24,24 +24,31 @@ if ($application_id <= 0) {
 if ($mode === 'send_email') {
     $recipient_email = trim($_POST['email'] ?? '');
     $email_body = trim($_POST['message'] ?? '');
+    $template = trim($_POST['template'] ?? ''); // Added template field
 
     if (empty($recipient_email) || empty($email_body)) {
         echo json_encode(['status' => 'error', 'message' => 'Email and message are required.']);
         exit();
     }
 
-    // **1. Insert email log into database**
-    $query = "INSERT INTO job_offers (application_id, message, offer_sent, created_at, status) VALUES (?, ?, 1, NOW(), 'Pending')";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("is", $application_id, $email_body); // Fix: Only 2 parameters
-    $stmt->execute();
-    
-    // Generate unique Yes/No links
-       // Generate unique acceptance links
-    $accept_link = "http://localhost/dashboard/CAPSTONE/HRMS/admin/update_job_offer.php?id=$application_id&status=Accepted";
-    $reject_link = "http://localhost/dashboard/CAPSTONE/HRMS/admin/update_job_offer.php?id=$application_id&status=Rejected";
+    // Determine the offer_sent value based on the template
+    $offer_sent_status = '';
+    if ($template === 'onboarding') {
+        $offer_sent_status = 'Onboarding Offer Sent';
+    } elseif ($template === 'job_offer') {
+        $offer_sent_status = 'Job Offer Sent';
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid template type.']);
+        exit();
+    }
 
-    // **2. Send Email via PHPMailer**
+    // Update offer_sent in the interview table
+    $query = "UPDATE interviews SET offer_sent = ? WHERE application_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("si", $offer_sent_status, $application_id);
+    $stmt->execute();
+
+    // Send Email via PHPMailer
     $mail = new PHPMailer(true);
     try {
         // SMTP Configuration
@@ -57,14 +64,11 @@ if ($mode === 'send_email') {
         $mail->setFrom('colantapatrick0@gmail.com', 'HRMS System');
         $mail->addAddress($recipient_email);
         $mail->isHTML(true);
-        $mail->Subject = 'Job Offer Update';
+        $email_subject = trim($_POST['subject'] ?? 'Charlex International Corporation'); // Fallback if blank
+        $mail->Subject = $email_subject;
         $mail->Body = "
             <p>Dear Applicant,</p>
             <p>$email_body</p>
-            <p>Please click one of the options below:</p>
-            <a href='$accept_link' style='padding: 10px; background-color: green; color: white; text-decoration: none;'>Yes, I Accept</a>
-            &nbsp;&nbsp;
-            <a href='$reject_link' style='padding: 10px; background-color: red; color: white; text-decoration: none;'>No, I Decline</a>
             <p>Best Regards,<br>HRMS Team</p>";
 
         // Send email
@@ -88,7 +92,7 @@ if ($mode === 'update_status') {
         exit();
     }
 
-    $query = "UPDATE job_offers SET status = ?, updated_at = NOW() WHERE application_id = ?";
+    $query = "UPDATE interviews SET offer_status = ? WHERE application_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("si", $job_status, $application_id);
     

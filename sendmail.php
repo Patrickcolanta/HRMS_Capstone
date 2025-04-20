@@ -23,7 +23,8 @@ function setupMailer()
         $mail->isHTML(true);
         return $mail;
     } catch (Exception $e) {
-        error_log("Mailer setup failed: {$mail->ErrorInfo}");
+        error_log("Exception caught: {$e->getMessage()}");
+        error_log("Mailer setup failed: {$e->getMessage()}");
     }
     return null;
 }
@@ -31,8 +32,13 @@ function setupMailer()
 function sendEmail($mail, $to, $subject, $body)
 {
     try {
-        $mail->clearAddresses(); // Clear previous recipients
-        $mail->addAddress($to);
+        if (is_string($to)) {
+            $mail->addAddress(trim($to));
+        } else {
+            error_log("Invalid email address: " . print_r($to, true));
+            return false;
+        }
+        $mail->addAddress(trim($to));
         $mail->Subject = $subject;
         $mail->Body = $body;
         $mail->AltBody = strip_tags($body);
@@ -60,7 +66,11 @@ function sendPasswordResetEmail($email, $resetToken)
         <p>Thank you!</p>
     ";
     return sendEmail($mail, $email, $subject, $body);
+
 }
+
+
+
 
 function sendLeaveApplicationEmail($supervisorEmail, $name, $from, $to, $type, $supervisorName)
 {
@@ -79,29 +89,3 @@ function sendLeaveApplicationEmail($supervisorEmail, $name, $from, $to, $type, $
     return sendEmail($mail, $supervisorEmail, $subject, $body);
 }
 
-function sendLeaveNotification($employeeEmails, $employeeName, $fromDate, $toDate, $leaveType, $status)
-{
-    $mail = setupMailer();
-    if (!$mail) {
-        return false;
-    }
-
-    $subject = $status == 1 ? "Leave Approval Notification" : "Leave Recall Notification";
-    $body = $status == 1 ? "
-        <p>Hello,</p>
-        <p>We are pleased to inform you that $employeeName's $leaveType leave from $fromDate to $toDate has been approved.</p>
-        <p>Thank you.</p>
-    " : "
-        <p>Hello,</p>
-        <p>We regret to inform you that $employeeName's $leaveType leave from $fromDate to $toDate has been recalled.</p>
-        <p>Thank you.</p>
-    ";
-    $success = true;
-    foreach ($employeeEmails as $email) {
-        if (!sendEmail($mail, $email, $subject, $body)) {
-            $success = false;
-            error_log("Failed to send leave notification to: $email");
-        }
-    }
-    return $success;
-}

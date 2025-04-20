@@ -50,6 +50,21 @@ function addTaskRecord($title, $description, $assigned_to, $assigned_by, $priori
     $result = mysqli_stmt_execute($stmt);
 
     if ($result) {
+     
+
+        // Add notification for the assigned employee
+        $notification_message = "You have been assigned a new task: $title";
+        $stmt_notification = mysqli_prepare($conn, "INSERT INTO notifications (title, message, type, created_at) VALUES (?, ?, ?, NOW())");
+        $notification_type = 'task';
+        mysqli_stmt_bind_param($stmt_notification, 'sss', $title, $notification_message, $notification_type);
+        mysqli_stmt_execute($stmt_notification);
+
+        // Add user notification for the assigned employee
+        $notification_id = mysqli_insert_id($conn);
+        $stmt_user_notification = mysqli_prepare($conn, "INSERT INTO user_notifications (notification_id, emp_id, sent_at) VALUES (?, ?, NOW())");
+        mysqli_stmt_bind_param($stmt_user_notification, 'ii', $notification_id, $assigned_to);
+        mysqli_stmt_execute($stmt_user_notification);
+
         $response = array('status' => 'success', 'message' => 'Task added successfully');
         echo json_encode($response);
         exit;

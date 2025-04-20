@@ -6,6 +6,8 @@ if (!isset($_SESSION['slogin']) || !isset($_SESSION['srole'])) {
     exit();
 }
 
+
+
 // Check if the user has the role of Manager or Admin
 $userRole = $_SESSION['srole'];
 if ($userRole !== 'Staff' && $_SESSION['is_supervisor'] !== 1) {
@@ -134,14 +136,16 @@ if ($userRole !== 'Staff' && $_SESSION['is_supervisor'] !== 1) {
                                                                     <div class="col-sm-12">
                                                                         <!-- contact data table card start -->
                                                                         <?php
-                                                                        // Query to fetch attendance records
+                                                                        $session_staff_id = $_SESSION['staff_id'];
+
+                                                                        // Query to fetch attendance records for the specific staff
                                                                         $stmt = mysqli_prepare($conn, "SELECT a.date, a.staff_id, 
-                                                                                                            e.first_name, e.middle_name, e.last_name, a.total_hours,
-                                                                                                            a.time_in, a.time_out 
-                                                                                                    FROM tblattendance a
-                                                                                                    JOIN tblemployees e ON a.staff_id = e.staff_id
-                                                                                                    WHERE a.staff_id = ?");
-                                                                        mysqli_stmt_bind_param($stmt, "i", $session_staff_id);
+                                                                                                                e.first_name, e.middle_name, e.last_name, a.total_hours,
+                                                                                                                a.time_in, a.time_out 
+                                                                                                        FROM tblattendance a
+                                                                                                        JOIN tblemployees e ON a.staff_id = e.staff_id
+                                                                                                        WHERE a.staff_id = ?");
+                                                                        mysqli_stmt_bind_param($stmt, "s", $session_staff_id); // Use "s" for string type
                                                                         mysqli_stmt_execute($stmt);
                                                                         $result = mysqli_stmt_get_result($stmt);
                                                                         ?>
@@ -151,7 +155,7 @@ if ($userRole !== 'Staff' && $_SESSION['is_supervisor'] !== 1) {
                                                                             </div>
                                                                             <div class="card-block contact-details">
                                                                                 <div class="data_table_main table-responsive dt-responsive">
-                                                                                    <table id="simpletable" class="table  table-striped table-bordered nowrap">
+                                                                                    <table id="simpletable" class="table table-striped table-bordered nowrap">
                                                                                         <thead>
                                                                                             <tr>
                                                                                                 <th>Date</th>
@@ -166,39 +170,20 @@ if ($userRole !== 'Staff' && $_SESSION['is_supervisor'] !== 1) {
                                                                                                 <?php
                                                                                                 $time_in = new DateTime($row['time_in']);
                                                                                                 $time_out = $row['time_out'] ? new DateTime($row['time_out']) : null;
+
                                                                                                 // Calculate and format total hours
                                                                                                 if ($time_out) {
-                                                                                                    $time_in = new DateTime($row['time_in']);
                                                                                                     $interval = $time_in->diff($time_out);
-
-                                                                                                    $hours = $interval->h;
-                                                                                                    $minutes = $interval->i;
-                                                                                                    $seconds = $interval->s;
-
-                                                                                                    $total_hours = '';
-                                                                                                    if ($hours > 0) {
-                                                                                                        $total_hours .= $hours . ' hr' . ($hours > 1 ? 's ' : ' ');
-                                                                                                    }
-                                                                                                    if ($minutes > 0) {
-                                                                                                        $total_hours .= $minutes . ' min' . ($minutes > 1 ? 's ' : ' ');
-                                                                                                    }
-                                                                                                    if ($seconds > 0) {
-                                                                                                        $total_hours .= $seconds . ' sec' . ($seconds > 1 ? 's' : '');
-                                                                                                    }
-
-                                                                                                    $total_hours = trim($total_hours);
+                                                                                                    $total_hours = $interval->format('%h hr %i min %s sec');
                                                                                                 } else {
                                                                                                     $total_hours = '-';
                                                                                                 }
+
                                                                                                 // Determine status
                                                                                                 $status = $row['time_out'] ? 'In/Out' : 'In';
-
-                                                                                                // Split and color the status
-                                                                                                if ($status == 'In/Out') {
-                                                                                                    $formatted_status = '<span style="color: green;">In</span>/<span style="color: orange;">Out</span>';
-                                                                                                } else {
-                                                                                                    $formatted_status = '<span style="color: green;">In</span>';
-                                                                                                }
+                                                                                                $formatted_status = $status === 'In/Out' 
+                                                                                                    ? '<span style="color: green;">In</span>/<span style="color: orange;">Out</span>' 
+                                                                                                    : '<span style="color: green;">In</span>';
                                                                                                 ?>
                                                                                                 <tr>
                                                                                                     <td><?php echo date('M d, Y', strtotime($row['date'])); ?></td>
@@ -219,6 +204,9 @@ if ($userRole !== 'Staff' && $_SESSION['is_supervisor'] !== 1) {
                                                                                             </tr>
                                                                                         </tfoot>
                                                                                     </table>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>

@@ -20,8 +20,17 @@ $updateStatusSql = "UPDATE job_listings
                     WHERE vacancy = 0 AND status != 'Inactive'";
 mysqli_query($conn, $updateStatusSql);
 
-$sql = "SELECT id, job_title, job_type,salary,location, vacancy, status, description, created_at FROM job_listings ORDER BY created_at DESC";
+$sql = "SELECT id, job_title, job_type, salary, location, vacancy, status, description, created_at FROM job_listings ORDER BY created_at DESC";
 $result = mysqli_query($conn, $sql);
+
+$jobs = [];
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $jobs[] = $row;
+    }
+} else {
+    echo "Error: " . mysqli_error($conn);
+}
 ?>
 
 <!DOCTYPE html>
@@ -75,8 +84,8 @@ $result = mysqli_query($conn, $sql);
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                                                        <tr class="job-row">
+                                                    <?php foreach ($jobs as $row) { ?>
+                                                        <tr>
                                                             <td><?= $row['id'] ?></td>
                                                             <td class="job-title"> <?= htmlspecialchars($row['job_title']) ?> </td>
                                                             <td><?= htmlspecialchars($row['job_type']) ?></td>

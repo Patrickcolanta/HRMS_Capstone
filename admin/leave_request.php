@@ -371,27 +371,34 @@ foreach ($leaveData as $leave) {
                         data: data,
                         success: function(response) {
                             console.log(`RESPONSE HERE: ${response}`);
-                            const responseObject = JSON.parse(response);
-                            console.log(`RESPONSE: ${response}`);
-                            console.log(`RESPONSE HERE: ${responseObject}`);
-                            console.log(`RESPONSE HERE: ${responseObject.message}`);
-                            if (response && responseObject.status === 'success') {
-                                // Show success message
-                                Swal.fire({
-                                    icon: 'success',
-                                    html: responseObject.message,
-                                    confirmButtonColor: '#01a9ac',
-                                    confirmButtonText: 'OK'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        location.reload();
-                                    }
-                                });
-                                
-                            } else {
+                            try {
+                                const responseObject = JSON.parse(response);
+                                console.log(`RESPONSE OBJECT: ${responseObject}`);
+                                if (responseObject.status === 'success') {
+                                    // Show success message
+                                    Swal.fire({
+                                        icon: 'success',
+                                        html: responseObject.message,
+                                        confirmButtonColor: '#01a9ac',
+                                        confirmButtonText: 'OK'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            location.reload();
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        text: responseObject.message,
+                                        confirmButtonColor: '#eb3422',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            } catch (e) {
+                                console.error("Error parsing JSON response:", e);
                                 Swal.fire({
                                     icon: 'error',
-                                    text: responseObject.message,
+                                    text: 'An unexpected error occurred.',
                                     confirmButtonColor: '#eb3422',
                                     confirmButtonText: 'OK'
                                 });
@@ -400,13 +407,11 @@ foreach ($leaveData as $leave) {
                         error: function(xhr, status, error) {
                             console.log("AJAX error: " + error);
                             console.log('Data HERE: ' + JSON.stringify(data));
-                            Swal.fire('Error!', 'Failed to delete department.', 'error');
+                            Swal.fire('Error!', 'Failed to update leave status.', 'error');
                         }
-
                     });
                 }
-                
-            })()
+            })();
         });
     });
 </script>

@@ -40,6 +40,17 @@ try {
         throw new Exception('No more vacancies for this job.');
     }
 
+    // ✅ Check if the email has already applied to this job
+    $stmt = $conn->prepare("SELECT id FROM job_applications WHERE job_id = ? AND email = ?");
+    $stmt->bind_param("is", $job_id, $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+
+    if ($result->num_rows > 0) {
+        throw new Exception('You have already applied to this job.');
+    }
+
     // ✅ Handle Resume Upload
     if (isset($_FILES['resume']) && $_FILES['resume']['error'] === UPLOAD_ERR_OK) {
         $allowedExtensions = ['pdf', 'doc', 'docx'];
@@ -93,9 +104,30 @@ try {
         }
     }
 
+    $title = "Application Submitted";
+    $message = "A new application has been submitted by $first_name $last_name.";
+    $type = 'success';
+
+    $stmt = $conn->prepare("INSERT INTO notifications (title, message, type, status) VALUES (?, ?, ?, 'active')");
+    $stmt->bind_param("sss", $title, $message, $type);
+    $stmt->execute();
+    $notification_id = $stmt->insert_id;
+    if ($notification_id > 0) {
+        $usernotifications = "INSERT INTO user_notifications (emp_id, notification_id, sent_at)
+        SELECT emp_id, ?, NOW() FROM tblemployees WHERE role IN ('Admin', 'HR')";
+        $usernotificationsStmt = $conn->prepare($usernotifications);
+        $usernotificationsStmt->bind_param("i", $notification_id);
+        $usernotificationsStmt->execute();
+    } else {
+        error_log("invalid notification id");
+    }
+    $stmt->close();
+
+
+    // add a notification here
+
     $conn->commit();
     $response = ['status' => 'success', 'message' => 'Application submitted successfully!'];
-
 } catch (Exception $e) {
     $conn->rollback();
     $response['message'] = $e->getMessage();
@@ -104,4 +136,3 @@ try {
 // ✅ Final JSON Output
 echo json_encode($response);
 exit;
-?>

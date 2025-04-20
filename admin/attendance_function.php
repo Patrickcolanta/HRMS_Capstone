@@ -2,15 +2,13 @@
 date_default_timezone_set('Asia/Manila');
 session_start();
 header('Content-Type: application/json'); // Ensure JSON response
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-ini_set('display_errors', 0); 
+error_reporting(0); // Suppress all errors to avoid unintended output
+ini_set('display_errors', 0);
 
 include('../includes/config.php');
 
 function clockIn($staff_id) {
     global $conn;
-
-    file_put_contents("debug_log.txt", print_r($_POST, true)); // Debugging
 
     if (!isset($_SESSION['staff_id']) || $staff_id !== $_SESSION['staff_id']) {
         echo json_encode(["status" => "error", "message" => "Session mismatch or expired. Please log in again."]);
@@ -56,15 +54,8 @@ function clockIn($staff_id) {
     exit;
 }
 
-
-
 function clockOut($staff_id) {
     global $conn;
-
-    error_log("Clock in attempt for staff_id: " . $staff_id);
-    
-    // Debug session
-    error_log("Session staff_id: " . (isset($_SESSION['staff_id']) ? $_SESSION['staff_id'] : 'not set'));
 
     if ($staff_id !== $_SESSION['staff_id']) {
         $response = array('status' => 'error', 'message' => 'Staff ID does not match session ID');
@@ -75,7 +66,6 @@ function clockOut($staff_id) {
     $currentDate = date('Y-m-d');
     $currentTime = date('H:i:s');
 
-     // Check if staff_id exists in tblemployees
     $stmt = mysqli_prepare($conn, "SELECT * FROM tblemployees WHERE staff_id = ?");
     if (!$stmt) {
         $response = array('status' => 'error', 'message' => 'Query preparation failed: ' . mysqli_error($conn));
@@ -92,7 +82,6 @@ function clockOut($staff_id) {
         exit;
     }
 
-    // Check if clocked in today
     $stmt = mysqli_prepare($conn, "SELECT * FROM tblattendance WHERE staff_id = ? AND DATE(date) = ? AND time_out IS NULL");
     mysqli_stmt_bind_param($stmt, 'ss', $staff_id, $currentDate);
     mysqli_stmt_execute($stmt);
@@ -104,7 +93,6 @@ function clockOut($staff_id) {
         exit;
     }
 
-    // Update clock out time
     $stmt = mysqli_prepare($conn, "UPDATE tblattendance SET time_out = ? WHERE staff_id = ? AND DATE(date) = ? AND time_out IS NULL");
     mysqli_stmt_bind_param($stmt, 'sss', $currentTime, $staff_id, $currentDate);
     $result = mysqli_stmt_execute($stmt);
@@ -120,17 +108,17 @@ function clockOut($staff_id) {
     }
 }
 
-function deleteAttendance($attendanceId) {
+function archiveAttendance($attendanceId) {
     global $conn;
 
-    $stmt = mysqli_prepare($conn, "DELETE FROM tblattendance WHERE attendance_id = ?");
+    $stmt = mysqli_prepare($conn, "UPDATE tblattendance SET is_archived = 1 WHERE attendance_id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $attendanceId);
     $result = mysqli_stmt_execute($stmt);
 
     if ($result) {
-        $response = array('status' => 'success', 'message' => 'Attendance record deleted successfully');
+        $response = array('status' => 'success', 'message' => 'Attendance record archived successfully.');
     } else {
-        $response = array('status' => 'error', 'message' => 'Failed to delete attendance record');
+        $response = array('status' => 'error', 'message' => 'Failed to archive attendance record.');
     }
     echo json_encode($response);
     exit;
@@ -139,7 +127,7 @@ function deleteAttendance($attendanceId) {
 if(isset($_POST['action'])) {
     $staff_id = isset($_POST['staff_id']) ? $_POST['staff_id'] : null;
 
-    if (!$staff_id) {
+    if (!$staff_id && $_POST['action'] !== 'archive_attendance') {
         echo json_encode(["status" => "error", "message" => "Staff ID is required"]);
         exit;
     }
@@ -150,6 +138,17 @@ if(isset($_POST['action'])) {
 
     if ($_POST['action'] === 'clock_out') {
         clockOut($staff_id);
+    }
+
+    if ($_POST['action'] === 'archive_attendance') {
+        $attendanceId = isset($_POST['attendance_id']) ? $_POST['attendance_id'] : null;
+
+        if (!$attendanceId) {
+            echo json_encode(["status" => "error", "message" => "Attendance ID is required"]);
+            exit;
+        }
+
+        archiveAttendance($attendanceId);
     }
 }
 ?>

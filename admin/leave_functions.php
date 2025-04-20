@@ -1,5 +1,5 @@
 <?php
-date_default_timezone_set('Africa/Accra');
+date_default_timezone_set('Asia/Manila');
 session_start();
 include('../includes/config.php');
 include('../sendmail.php');
@@ -143,9 +143,29 @@ function insertLeaveRequest($empId, $leaveTypeId, $startDate, $endDate, $numberD
     mysqli_stmt_execute($stmt);
 
     if (mysqli_stmt_affected_rows($stmt) > 0) {
+        $leaveId = mysqli_insert_id($conn);
         $supervisorInfo = getSupervisorInfo($empId);
         $senderName = getEmployeeName($empId);
         $leaveType = getLeaveTypeDescription($leaveTypeId);
+
+        // Insert into notification table
+        $notificationTitle = "Leave Request Submitted";
+        $notificationMessage = "New leave request submitted by $senderName for $leaveType from $startDate to $endDate.";
+        $notificationQuery = "INSERT INTO notifications (title, message, created_at) VALUES (?, ?, NOW())";
+        $notificationStmt = mysqli_prepare($conn, $notificationQuery);
+        mysqli_stmt_bind_param($notificationStmt, 'ss', $notificationTitle, $notificationMessage);
+        mysqli_stmt_execute($notificationStmt);
+
+        if (mysqli_stmt_affected_rows($notificationStmt) > 0) {
+            $notificationId = mysqli_insert_id($conn);
+
+            // Insert into user_notifications table
+            $userNotificationQuery = "INSERT INTO user_notifications (emp_id, notification_id, sent_at)
+                                      SELECT emp_id, ?, NOW() FROM tblemployees WHERE role IN ('Admin', 'HR')";
+            $userNotificationStmt = mysqli_prepare($conn, $userNotificationQuery);
+            mysqli_stmt_bind_param($userNotificationStmt, 'i', $notificationId);
+            mysqli_stmt_execute($userNotificationStmt);
+        }
 
         if ($supervisorInfo && isValidEmail($supervisorInfo['email'])) {
             $emailSent = sendLeaveApplicationEmail($supervisorInfo['email'], $senderName, $startDate, $endDate, $leaveType, $supervisorInfo['name']);
@@ -221,18 +241,29 @@ function updateStatus($id, $status)
         mysqli_stmt_bind_param($stmt, 'ii', $status, $id);
         $result = mysqli_stmt_execute($stmt);
 
-        $employeeEmails = getAllEmployeeEmails();
-        $senderName = getEmployeeName($empId);
-        $leaveType = getLeaveTypeDescription($leaveTypeId);
-
         if ($result) {
+            // Insert into notification table
+            $leaveType = getLeaveTypeDescription($leaveTypeId);
+            $senderName = getEmployeeName($empId);
+            $notificationTitle = "Leave Status Updated";
+            $statusText = ($status == 1) ? "Approved" : (($status == 3) ? "Recalled" : "Updated");
+            $notificationMessage = "The leave request for $leaveType by $senderName has been $statusText.";
+            $notificationQuery = "INSERT INTO notifications (title, message, created_at) VALUES (?, ?, NOW())";
+            $notificationStmt = mysqli_prepare($conn, $notificationQuery);
+            mysqli_stmt_bind_param($notificationStmt, 'ss', $notificationTitle, $notificationMessage);
+            mysqli_stmt_execute($notificationStmt);
+
+            if (mysqli_stmt_affected_rows($notificationStmt) > 0) {
+                $notificationId = mysqli_insert_id($conn);
+
+                // Insert into user_notifications table
+                $userNotificationQuery = "INSERT INTO user_notifications (emp_id, notification_id, sent_at) VALUES (?, ?, NOW())";
+                $userNotificationStmt = mysqli_prepare($conn, $userNotificationQuery);
+                mysqli_stmt_bind_param($userNotificationStmt, 'ii', $empId, $notificationId);
+                mysqli_stmt_execute($userNotificationStmt);
+            }
+
             if ($status == 1 || $status == 3) {
-                if (sendLeaveNotification($employeeEmails, $senderName, $fromDate, $toDate, $leaveType, $status)) {
-                    $response = array('status' => 'success', 'message' => 'Leave status updated and notifications sent successfully.');
-                } else {
-                    $response = array('status' => 'success', 'message' => 'Leave status updated, but failed to send notifications.');
-                }
-            } else {
                 $response = array('status' => 'success', 'message' => 'Leave status updated successfully.');
             }
             echo json_encode($response);
@@ -267,11 +298,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'apply-leave') {
 
     $response = updateStatus($id, $status);
     echo $response;
-} else if (isset($_POST['action']) && $_POST['action'] === 'delete-leave') {
-    $id = $_POST['id'];
-    $response = deleteLeave($id);
-    echo $response;
-}
+} 
 ?>
 
 <?php
@@ -444,6 +471,3 @@ if (empty($leaveData)) {
     }
 }
 ?>
-
-
-

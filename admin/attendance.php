@@ -61,12 +61,13 @@ if ($userRole !== 'HR' && $userRole !== 'Admin') {
                                                                 <div class="col-sm-12">
                                                                     <!-- contact data table card start -->
                                                                      <?php
-                                                                        // Query to fetch attendance records
+                                                                        // Query to fetch attendance records where is_archived is not set or is 0
                                                                         $stmt = mysqli_prepare($conn, "SELECT a.date, a.staff_id, 
                                                                                                             e.first_name, e.middle_name, e.last_name, a.attendance_id,
                                                                                                             a.time_in, a.time_out 
                                                                                                     FROM tblattendance a
-                                                                                                    JOIN tblemployees e ON a.staff_id = e.staff_id");
+                                                                                                    JOIN tblemployees e ON a.staff_id = e.staff_id
+                                                                                                    WHERE a.is_archived = 0");
                                                                         mysqli_stmt_execute($stmt);
                                                                         $result = mysqli_stmt_get_result($stmt);
                                                                      ?>
@@ -137,7 +138,7 @@ if ($userRole !== 'HR' && $userRole !== 'Admin') {
                                                                                                 <td><strong><?php echo htmlspecialchars($total_hours); ?></strong></td>
                                                                                                 <td><?php echo $formatted_status; ?></td>
                                                                                                 <td class="dropdown">
-                                                                                                    <button id="btn_delete" type="submit" class="btn btn-primary" data-id="<?php echo $row['attendance_id']; ?>"><i class="icofont icofont-ui-delete" aria-hidden="true"></i>Delete</button>
+                                                                                                    <button class="btn_archive btn btn-warning" type="button" data-id="<?php echo $row['attendance_id']; ?>"><i class="icofont icofont-archive" aria-hidden="true"></i> Archive</button>
                                                                                                 </td>
                                                                                             </tr>
                                                                                         <?php endwhile; ?>
@@ -202,41 +203,54 @@ if ($userRole !== 'HR' && $userRole !== 'Admin') {
     </script>
     <script>
         $(document).ready(function() {
-            $('#btn_delete').click(function(event){
+            $('.btn_archive').click(function(event){
                 event.preventDefault();
                 var attendanceId = $(this).data('id');
+                console.log('Archive button clicked for attendance ID:', attendanceId); // Added console.log
 
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "Do you really want to delete this record?",
+                    text: "Do you really want to archive this record?",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: 'Yes, archive it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
                             url: 'attendance_function.php',
                             type: 'POST',
                             data: {
-                                action: 'delete_attendance',
+                                action: 'archive_attendance',
                                 attendance_id: attendanceId
                             },
                             success: function(response) {
-                                response = JSON.parse(response);
-                                if(response.status === 'success') {
+                                console.log('Server response:', response); // Added console.log
+                                try {
+                                    if (typeof response === 'string') {
+                                        response = JSON.parse(response);
+                                    }
+                                    if(response.status === 'success') {
+                                        Swal.fire(
+                                            'Archived!',
+                                            'The record has been archived.',
+                                            'success'
+                                        ).then(() => {
+                                            location.reload(); // Refresh the page to reflect changes
+                                        });
+                                    } else {
+                                        Swal.fire(
+                                            'Failed!',
+                                            'Failed to archive record: ' + response.message,
+                                            'error'
+                                        );
+                                    }
+                                } catch (e) {
+                                    console.error('Parsing error:', e);
                                     Swal.fire(
-                                        'Deleted!',
-                                        'The record has been deleted.',
-                                        'success'
-                                    ).then(() => {
-                                        location.reload(); // Refresh the page to reflect changes
-                                    });
-                                } else {
-                                    Swal.fire(
-                                        'Failed!',
-                                        'Failed to delete record: ' + response.message,
+                                        'Error!',
+                                        'Invalid response from server.',
                                         'error'
                                     );
                                 }
@@ -245,7 +259,7 @@ if ($userRole !== 'HR' && $userRole !== 'Admin') {
                                 console.error('Error:', errorThrown);
                                 Swal.fire(
                                     'Error!',
-                                    'Error deleting record',
+                                    'Error archiving record',
                                     'error'
                                 );
                             }

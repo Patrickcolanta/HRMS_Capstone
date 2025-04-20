@@ -62,7 +62,7 @@
                                 <span class="pcoded-mtext">My Leave</span>
                             </a>
                         </li>
-                        <?php if ($session_role == 'Manager' || $session_role == 'Admin') : ?>
+                        <?php if ($session_role == 'HR' || $session_role == 'Admin') : ?>
                             <li class="<?php echo ($page_name == 'leave_request') ? 'active' : ''; ?>">
                                 <a href="leave_request.php?leave_status=0">
                                     <span class="pcoded-mtext">All Leaves</span>
@@ -99,8 +99,7 @@
                 </ul>
             </li>
 
-            <!-- Recruitment Management Feature -->
-            <?php if ($session_role == 'HR' && $session_role == 'Admin' ) : ?>
+    
                 <li class="pcoded-hasmenu <?php echo ($page_name == 'recruitment' || $page_name == 'job_listings' || $page_name == 'applications' || $page_name == 'job_offer' || $page_name == 'schedule_interview') ? 'active pcoded-trigger' : ''; ?>">
                     <a href="javascript:void(0)">
                         <span class="pcoded-micon"><i class="feather icon-briefcase"></i></span>
@@ -129,7 +128,7 @@
                         </li>
                     </ul>
                 </li>
-            <?php endif; ?>
+          
 
 
         <li class="pcoded-hasmenu <?php echo ($page_name == 'attendance' || $page_name == 'my_attendance') ? 'active pcoded-trigger' : ''; ?>">
@@ -233,6 +232,8 @@
                                 </a>
                             </li>
 
+                            
+
                         <?php endif; ?>
                     </ul>
                 </li>
@@ -254,38 +255,34 @@
                         </li>
                     </ul>
                 </li>
-
-                <!-- Recruitment Management Feature -->
-                <?php if ($session_department == 'Human Resources') : ?>
-                    <li class="pcoded-hasmenu <?php echo ($page_name == 'recruitment' || $page_name == 'job_listings' || $page_name == 'applications' || $page_name == 'job_offer' || $page_name == 'schedule_interview') ? 'active pcoded-trigger' : ''; ?>">
-                        <a href="javascript:void(0)">
-                            <span class="pcoded-micon"><i class="feather icon-briefcase"></i></span>
-                            <span class="pcoded-mtext">Recruitment</span>
-                        </a>
-                        <ul class="pcoded-submenu">
-                            <li class="<?php echo ($page_name == 'job_listings') ? 'active' : ''; ?>">
-                                <a href="job_listings.php">
-                                    <span class="pcoded-mtext">Job Listings</span>
-                                </a>
-                            </li>
-                            <li class="<?php echo ($page_name == 'applications') ? 'active' : ''; ?>">
-                                <a href="applications.php">
-                                    <span class="pcoded-mtext">Applications</span>
-                                </a>
-                            </li>
-                            <li class="<?php echo ($page_name == 'schedule_interview') ? 'active' : ''; ?>">
-                                <a href="schedule_interview.php">
-                                    <span class="pcoded-mtext">Schedule Interview</span>
-                                </a>
-                            </li>
-                            <li class="<?php echo ($page_name == 'job_offer') ? 'active' : ''; ?>">
-                                <a href="job_offer.php">
-                                    <span class="pcoded-mtext">Job Offer and Onboarding</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                <?php endif; ?>
+                <li class="pcoded-hasmenu <?php echo ($page_name == 'recruitment' || $page_name == 'job_listings' || $page_name == 'applications' || $page_name == 'job_offer' || $page_name == 'schedule_interview') ? 'active pcoded-trigger' : ''; ?>">
+                    <a href="javascript:void(0)">
+                        <span class="pcoded-micon"><i class="feather icon-briefcase"></i></span>
+                        <span class="pcoded-mtext">Recruitment</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        <li class="<?php echo ($page_name == 'job_listings') ? 'active' : ''; ?>">
+                            <a href="job_listings.php">
+                                <span class="pcoded-mtext">Job Listings</span>
+                            </a>
+                        </li>
+                        <li class="<?php echo ($page_name == 'applications') ? 'active' : ''; ?>">
+                            <a href="applications.php">
+                                <span class="pcoded-mtext">Applications</span>
+                            </a>
+                        </li>
+                        <li class="<?php echo ($page_name == 'schedule_interview') ? 'active' : ''; ?>">
+                            <a href="schedule_interview.php">
+                                <span class="pcoded-mtext">Schedule Interview</span>
+                            </a>
+                        </li>
+                        <li class="<?php echo ($page_name == 'job_offer') ? 'active' : ''; ?>">
+                            <a href="job_offer.php">
+                                <span class="pcoded-mtext">Job Offer and Onboarding</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
 
                 <li class="pcoded-hasmenu <?php echo ($page_name == 'attendance' || $page_name == 'my_attendance') ? 'active pcoded-trigger' : ''; ?>">

@@ -45,6 +45,16 @@
                                         <h3 class="text-center"><i class="feather icon-lock text-primary f-60 p-t-15 p-b-20 d-block"></i></h3>
                                     </div>
                                 </div>
+                                <div class="alert alert-info text-center" role="alert">
+                                    Password must meet the following requirements:
+                                    <ul class="text-left">
+                                        <li>At least <strong>16 characters</strong></li>
+                                        <li>At least <strong>one uppercase letter</strong> (A-Z)</li>
+                                        <li>At least <strong>one lowercase letter</strong> (a-z)</li>
+                                        <li>At least <strong>one number</strong> (0-9)</li>
+                                        <li>At least <strong>one special character</strong> (@$!%*?&)</li>
+                                    </ul>
+                                </div>
                                 <div class="form-group form-primary">
                                    <input type="password" id="new_password" name="new_password" class="form-control password" required="" placeholder="New Password">
                                     <span class="form-bar"></span>
@@ -156,7 +166,7 @@ $(document).ready(function() {
                 html: `
                     Password must meet the following requirements:<br>
                     <ul style="text-align: left; margin-top: 10px;">
-                        <li>At least <strong>8 characters</strong></li>
+                        <li>At least <strong>16 characters</strong></li>
                         <li>At least <strong>one uppercase letter</strong> (A-Z)</li>
                         <li>At least <strong>one lowercase letter</strong> (a-z)</li>
                         <li>At least <strong>one number</strong> (0-9)</li>
