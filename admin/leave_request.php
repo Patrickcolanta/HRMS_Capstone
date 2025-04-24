@@ -168,11 +168,42 @@ foreach ($leaveData as $leave) {
                                                   <div class="d-inline">
                                                       <h4>Leave Portal - All Leaves</h4>
                                                       <span>Verify and respond to leave request</span>
+                                                      
                                                   </div>
                                               </div>
                                           </div>
                                       </div>
                                   </div>
+                                  <div class="row mb-4">
+    <div class="col-md-12">
+        <form class="form-inline" method="GET" action="export_leave_pdf.php" target="_blank">
+            <div class="form-group mr-3">
+                <label for="from_date" class="mr-2 font-weight-bold">From:</label>
+                <input type="date" name="from_date" id="from_date" class="form-control" required>
+            </div>
+            <div class="form-group mr-3">
+                <label for="to_date" class="mr-2 font-weight-bold">To:</label>
+                <input type="date" name="to_date" id="to_date" class="form-control" required>
+            </div>
+            <div class="form-group mr-3">
+                <label for="leave_status" class="mr-2 font-weight-bold">Status:</label>
+                <select name="leave_status" id="leave_status" class="form-control">
+                    <option value="Show all" selected>Show all</option>
+                    <option value="0">Pending</option>
+                    <option value="1">Approved</option>
+                    <option value="2">Cancelled</option>
+                    <option value="3">Recalled</option>
+                    <option value="4">Rejected</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-danger">
+                <i class="icofont icofont-file-pdf"></i> Generate PDF
+            </button>
+        </form>
+    </div>
+</div>
+
+
                                   <!-- Page-header end -->
                                     <!-- Page body start -->
                                     <div class="page-body">

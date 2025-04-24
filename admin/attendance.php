@@ -60,105 +60,116 @@ if ($userRole !== 'HR' && $userRole !== 'Admin') {
                                                             <div class="row">
                                                                 <div class="col-sm-12">
                                                                     <!-- contact data table card start -->
-                                                                     <?php
-                                                                        // Query to fetch attendance records where is_archived is not set or is 0
-                                                                        $stmt = mysqli_prepare($conn, "SELECT a.date, a.staff_id, 
-                                                                                                            e.first_name, e.middle_name, e.last_name, a.attendance_id,
-                                                                                                            a.time_in, a.time_out 
-                                                                                                    FROM tblattendance a
-                                                                                                    JOIN tblemployees e ON a.staff_id = e.staff_id
-                                                                                                    WHERE a.is_archived = 0");
-                                                                        mysqli_stmt_execute($stmt);
-                                                                        $result = mysqli_stmt_get_result($stmt);
-                                                                     ?>
-                                                                    <div class="card">
-                                                                        <div class="card-header">
-                                                                            <h5 class="card-header-text">Attendance Records</h5>
-                                                                        </div>
-                                                                        <div class="card-block contact-details">
-                                                                            <div class="data_table_main table-responsive dt-responsive">
-                                                                                <table id="simpletable" class="table  table-striped table-bordered nowrap">
-                                                                                    <thead>
-                                                                                        <tr>
-                                                                                            <th>Date</th>
-                                                                                            <th>Staff ID</th>
-                                                                                            <th>Full Name</th>
-                                                                                            <th>Time In</th>
-                                                                                            <th>Time Out</th>
-                                                                                            <th>Total Hours</th>
-                                                                                            <th>Status(In/Out)</th>
-                                                                                            <th>Action</th>
-                                                                                        </tr>
-                                                                                    </thead>
-                                                                                    <tbody>
-                                                                                        <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                                                                                            <?php
-                                                                                                $time_in = new DateTime($row['time_in']);
-                                                                                                $time_out = $row['time_out'] ? new DateTime($row['time_out']) : null;
-                                                                                                // Calculate and format total hours
-                                                                                                if ($time_out) {
-                                                                                                    $time_in = new DateTime($row['time_in']);
-                                                                                                    $interval = $time_in->diff($time_out);
-                                                                                                    
-                                                                                                    $hours = $interval->h;
-                                                                                                    $minutes = $interval->i;
-                                                                                                    $seconds = $interval->s;
+                                                                    <?php
+    $fromDate = $_GET['from_date'] ?? null;
+    $toDate = $_GET['to_date'] ?? null;
 
-                                                                                                    $total_hours = '';
-                                                                                                    if ($hours > 0) {
-                                                                                                        $total_hours .= $hours . ' hr' . ($hours > 1 ? 's ' : ' ');
-                                                                                                    }
-                                                                                                    if ($minutes > 0) {
-                                                                                                        $total_hours .= $minutes . ' min' . ($minutes > 1 ? 's ' : ' ');
-                                                                                                    }
-                                                                                                    if ($seconds > 0) {
-                                                                                                        $total_hours .= $seconds . ' sec' . ($seconds > 1 ? 's' : '');
-                                                                                                    }
+    // Build the SQL query with optional date filtering
+    $query = "SELECT a.date, a.staff_id, 
+                    e.first_name, e.middle_name, e.last_name, a.attendance_id,
+                    a.time_in, a.time_out 
+            FROM tblattendance a
+            JOIN tblemployees e ON a.staff_id = e.staff_id
+            WHERE a.is_archived = 0";
 
-                                                                                                    $total_hours = trim($total_hours);
-                                                                                                } else {
-                                                                                                    $total_hours = '-';
-                                                                                                }
-                                                                                                // Determine status
-                                                                                                $status = $row['time_out'] ? 'In/Out' : 'In';
+    if ($fromDate && $toDate) {
+        $query .= " AND a.date BETWEEN ? AND ?";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "ss", $fromDate, $toDate);
+    } else {
+        $stmt = mysqli_prepare($conn, $query);
+    }
 
-                                                                                                // Split and color the status
-                                                                                                if ($status == 'In/Out') {
-                                                                                                    $formatted_status = '<span style="color: green;">In</span>/<span style="color: orange;">Out</span>';
-                                                                                                } else {
-                                                                                                    $formatted_status = '<span style="color: green;">In</span>';
-                                                                                                }
-                                                                                            ?>
-                                                                                            <tr>
-                                                                                                <td><?php echo date('M d, Y', strtotime($row['date'])); ?></td>
-                                                                                                <td><?php echo htmlspecialchars($row['staff_id']); ?></td>
-                                                                                                <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['middle_name'] . ' ' . $row['last_name']); ?></td>
-                                                                                                <td><?php echo htmlspecialchars(date('h:i A', strtotime($row['time_in']))); ?></td>
-                                                                                                <td><?php echo $time_out ? htmlspecialchars(date('h:i A', strtotime($row['time_out']))) : '-'; ?></td>
-                                                                                                <td><strong><?php echo htmlspecialchars($total_hours); ?></strong></td>
-                                                                                                <td><?php echo $formatted_status; ?></td>
-                                                                                                <td class="dropdown">
-                                                                                                    <button class="btn_archive btn btn-warning" type="button" data-id="<?php echo $row['attendance_id']; ?>"><i class="icofont icofont-archive" aria-hidden="true"></i> Archive</button>
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        <?php endwhile; ?>
-                                                                                    </tbody>
-                                                                                    <tfoot>
-                                                                                        <tr>
-                                                                                            <th>Date</th>
-                                                                                            <th>Staff ID</th>
-                                                                                            <th>Full Name</th>
-                                                                                            <th>Time In</th>
-                                                                                            <th>Time Out</th>
-                                                                                            <th>Total Hours</th>
-                                                                                            <th>Status(In/Out)</th>
-                                                                                            <th>Action</th>
-                                                                                        </tr>
-                                                                                    </tfoot>
-                                                                                </table>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+?>
+
+<!-- ✅ Date Filter and Export Form -->
+<form method="GET" class="mb-3">
+    <label>From: <input type="date" name="from_date" value="<?php echo htmlspecialchars($fromDate); ?>" required></label>
+    <label>To: <input type="date" name="to_date" value="<?php echo htmlspecialchars($toDate); ?>" required></label>
+    <button type="submit" class="btn btn-info">Filter</button>
+    <a href="export_excel.php?from_date=<?php echo $fromDate; ?>&to_date=<?php echo $toDate; ?>" target="_blank" class="btn btn-success">
+        <i class="icofont icofont-file-excel"></i> Export to PDF
+    </a>
+</form>
+
+<!-- ✅ Existing Attendance Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-header-text">Attendance Records</h5>
+    </div>
+    <div class="card-block contact-details">
+        <div class="data_table_main table-responsive dt-responsive">
+            <table id="simpletable" class="table  table-striped table-bordered nowrap">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Staff ID</th>
+                        <th>Full Name</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Total Hours</th>
+                        <th>Status(In/Out)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                        <?php
+                            $time_in = new DateTime($row['time_in']);
+                            $time_out = $row['time_out'] ? new DateTime($row['time_out']) : null;
+                            if ($time_out) {
+                                $interval = $time_in->diff($time_out);
+                                $hours = $interval->h;
+                                $minutes = $interval->i;
+                                $seconds = $interval->s;
+                                $total_hours = '';
+                                if ($hours > 0) $total_hours .= $hours . ' hr' . ($hours > 1 ? 's ' : ' ');
+                                if ($minutes > 0) $total_hours .= $minutes . ' min' . ($minutes > 1 ? 's ' : ' ');
+                                if ($seconds > 0) $total_hours .= $seconds . ' sec' . ($seconds > 1 ? 's' : '');
+                                $total_hours = trim($total_hours);
+                            } else {
+                                $total_hours = '-';
+                            }
+                            $status = $row['time_out'] ? 'In/Out' : 'In';
+                            $formatted_status = $status === 'In/Out'
+                                ? '<span style="color: green;">In</span>/<span style="color: orange;">Out</span>'
+                                : '<span style="color: green;">In</span>';
+                        ?>
+                        <tr>
+                            <td><?php echo date('M d, Y', strtotime($row['date'])); ?></td>
+                            <td><?php echo htmlspecialchars($row['staff_id']); ?></td>
+                            <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['middle_name'] . ' ' . $row['last_name']); ?></td>
+                            <td><?php echo htmlspecialchars(date('h:i A', strtotime($row['time_in']))); ?></td>
+                            <td><?php echo $time_out ? htmlspecialchars(date('h:i A', strtotime($row['time_out']))) : '-'; ?></td>
+                            <td><strong><?php echo htmlspecialchars($total_hours); ?></strong></td>
+                            <td><?php echo $formatted_status; ?></td>
+                            <td class="dropdown">
+                                <button class="btn_archive btn btn-warning" type="button" data-id="<?php echo $row['attendance_id']; ?>">
+                                    <i class="icofont icofont-archive"></i> Archive
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Date</th>
+                        <th>Staff ID</th>
+                        <th>Full Name</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Total Hours</th>
+                        <th>Status(In/Out)</th>
+                        <th>Action</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
                                                                     <!-- contact data table card end -->
                                                                 </div>
                                                             </div>

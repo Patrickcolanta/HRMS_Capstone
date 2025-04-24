@@ -95,19 +95,25 @@ mysqli_stmt_close($stmt);
                         <!-- Main-body start -->
                         <div class="main-body">
                             <div class="page-wrapper">
-                                <!-- Page-header start -->
-                                <div class="page-header">
-                                    <div class="row align-items-end">
-                                        <div class="col-lg-8">
-                                            <div class="page-header-title">
-                                                <div class="d-inline">
-                                                    <h4>Staff List</h4>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Page-header end -->
+                               <!-- Page-header start -->
+<div class="page-header">
+    <div class="row align-items-center justify-content-between">
+        <div class="col-lg-8 col-md-6">
+            <div class="page-header-title">
+                <div class="d-inline">
+                    <h4>Staff List</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 text-end">
+            <a href="export_staff_pdf.php?department=Show all" target="_blank" class="btn btn-primary">
+                <i class="fa fa-file-pdf-o"></i> Export as PDF
+            </a>
+        </div>
+    </div>
+</div>
+<!-- Page-header end -->
+
                                     <!-- Page-body start -->
                                     <div class="page-body">
                                         <div class="row">

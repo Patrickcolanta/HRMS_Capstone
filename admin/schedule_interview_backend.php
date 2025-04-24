@@ -95,12 +95,12 @@ function sendInterviewEmail($to, $name, $date, $time, $mode, $location, $intervi
         $mail->Port = 587;
 
         // Sender and recipient
-        $mail->setFrom('colantapatrick0@gmail.com', 'HRMS System');
+        $mail->setFrom('colantapatrick0@gmail.com', 'Charlex International Corporation');
         $mail->addAddress($to); // Use `$to` instead of `$email`
         
         // Email Content
         $mail->isHTML(true);
-        $mail->Subject = "Interview Schedule Notification";
+        $mail->Subject = "Interview Schedule Notification - Charlex International Corporation";
         $mail->Body    = "
             <h3>Dear $name,</h3>
             <p>We are pleased to inform you that your interview has been scheduled.</p>
@@ -113,7 +113,10 @@ function sendInterviewEmail($to, $name, $date, $time, $mode, $location, $intervi
             </ul>
             <p>Kindly confirm your availability.</p>
             <p>Best Regards,</p>
+            <p>Isaiah Guinto </p>
             <p><strong>HR Department</strong></p>
+            <p>Charlex International Corporation </p>
+            <p>isaiahguinto13@gmail.com </p>
         ";
 
         // Send email
